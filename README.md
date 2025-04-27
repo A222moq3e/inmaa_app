@@ -1,5 +1,12 @@
 # Welcome to your Expo app 👋
 
+## ERD
+[dbdiagram.io](https://discord.com/channels/1349850397833039984/1349850397833039987/136000219851103046)
+
+## DESIGN (figma)
+[figma](https://www.figma.com/design/90L39KhrvqEgfT1QORTR7u/Untitled?node-id=0-1&t=T9PoODR6esFuQJN2-1)
+
+_________________
 This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
 
 ## Get started
