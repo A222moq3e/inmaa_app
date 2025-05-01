@@ -1,7 +1,7 @@
 # Welcome to your Expo app 👋
 
 ## ERD
-[dbdiagram.io](https://discord.com/channels/1349850397833039984/1349850397833039987/136000219851103046)
+[dbdiagram.io](https://dbdiagram.io/d/Milestone%231-Diagram-67f7ce1f4f7afba1841dc8c5)
 
 ## DESIGN (figma)
 [figma](https://www.figma.com/design/90L39KhrvqEgfT1QORTR7u/Untitled?node-id=0-1&t=T9PoODR6esFuQJN2-1)
