@@ -1,84 +1,47 @@
-import React, { useEffect, useCallback, useMemo, useRef } from 'react';
+import React from 'react';
 import { StyleSheet, View, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+
+// Theme & Constants
 import { useThemeColor } from '@/hooks/useThemeColor';
 import { useColorScheme } from '@/hooks/useColorScheme';
-import { useNav } from '@/context/NavContext';
 import { Colors } from '@/constants/Colors';
 
-// Import our page components
-import { AboutPage } from '@/components/pages/AboutPage';
-import { ProfilePage } from '@/components/pages/ProfilePage';
-import { SettingsPage } from '@/components/pages/SettingsPage';
-import { NotificationsPage } from '@/components/pages/NotificationsPage';
-
-export default function HomeScreen() {
+/**
+ * Home screen component - main landing page of the app
+ */
+function HomeScreen() {
   const backgroundColor = useThemeColor({}, 'background');
   const textColor = useThemeColor({}, 'text');
   const colorScheme = useColorScheme();
-  const { setMenuItems, openDrawer } = useNav();
-  
-  // Use a ref to track initialization instead of state to avoid re-renders
-  const initialized = useRef(false);
 
-  // Memoize the openDrawer callbacks to prevent recreating them on every render
-  const openProfile = useCallback(() => {
-    openDrawer('Profile', <ProfilePage />);
-  }, [openDrawer]);
-  
-  const openNotifications = useCallback(() => {
-    openDrawer('Notifications', <NotificationsPage />);
-  }, [openDrawer]);
-  
-  const openSettings = useCallback(() => {
-    openDrawer('Settings', <SettingsPage />);
-  }, [openDrawer]);
-  
-  const openAbout = useCallback(() => {
-    openDrawer('About', <AboutPage />);
-  }, [openDrawer]);
-
-  // Memoize menuItems to prevent recreating them on every render
-  const menuItems = useMemo(() => [
+  const menuItems = [
     {
       id: 'profile',
       title: 'My Profile',
       icon: <Ionicons name="person" size={22} color="#fff" />,
       color: Colors[colorScheme ?? 'light'].menuBlue,
-      action: openProfile,
     },
     {
       id: 'notifications',
       title: 'Notifications',
       icon: <Ionicons name="notifications" size={22} color="#fff" />,
       color: Colors[colorScheme ?? 'light'].menuRed,
-      action: openNotifications,
     },
     {
       id: 'settings',
       title: 'Settings',
       icon: <Ionicons name="settings" size={22} color="#fff" />,
       color: Colors[colorScheme ?? 'light'].menuGreen,
-      action: openSettings,
     },
     {
       id: 'about',
       title: 'About',
       icon: <Ionicons name="information-circle" size={22} color="#fff" />,
       color: Colors[colorScheme ?? 'light'].menuYellow,
-      action: openAbout,
     },
-  ], [colorScheme, openProfile, openNotifications, openSettings, openAbout]);
-
-  // Set menu items only once using a ref flag
-  useEffect(() => {
-    // Only set menu items if we haven't done it yet
-    if (!initialized.current) {
-      setMenuItems(menuItems);
-      initialized.current = true;
-    }
-  }, [setMenuItems, menuItems]);
+  ];
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor }]}>
@@ -144,4 +107,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginTop: 8,
   },
-}); 
+});
+
+export default HomeScreen; 
