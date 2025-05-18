@@ -1,81 +1,95 @@
 import React from 'react';
-import { View as RNView, Text as RNText, Image as RNImage, ScrollView, SafeAreaView as RNSafeAreaView } from 'react-native';
+import { View, Text, Image, ScrollView, SafeAreaView, ViewStyle, TextStyle, ImageStyle, I18nManager } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
-import { styled } from 'nativewind';
 
-// Create styled components
-const View = styled(RNView);
-const Text = styled(RNText);
-const Image = styled(RNImage);
-const SafeAreaView = styled(RNSafeAreaView);
+// Enable RTL layout
+I18nManager.forceRTL(true);
 
 // Mock data for the club - in a real app, this would come from props or context
 const clubData = {
   id: 1,
-  name: "Programming Club",
-  description: "A club for programming enthusiasts",
-  logo: "https://example.com/logo.png",
-  type: "specialized",
-  status: "active",
+  name: "نادي البرمجة",
+  description: "نادٍ لمحبي البرمجة",
+  logo: "https://placehold.co/600x400/png",
+  type: "متخصص",
+  status: "نشط",
   foundingDate: "2024-01-01",
   createdAt: "2024-01-01T00:00:00Z",
   updatedAt: "2024-01-01T00:00:00Z"
 };
 
+// Inline style objects that mimic Tailwind/NativeWind classes
+const tw: Record<string, ViewStyle | TextStyle | ImageStyle> = {
+  container: { flex: 1, backgroundColor: '#fff' },
+  header: { alignItems: 'center' as const, padding: 20, borderBottomWidth: 1, borderBottomColor: '#eee' },
+  logo: { width: 100, height: 100, borderRadius: 50, marginBottom: 15 },
+  name: { fontSize: 24, fontWeight: 'bold' as const, marginBottom: 10, textAlign: 'right' as const },
+  badgeContainer: { flexDirection: 'row-reverse' as const, marginTop: 5 },
+  badge: { backgroundColor: '#e0e0e0', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20, marginHorizontal: 5 },
+  statusBadge: { backgroundColor: '#4CAF50' },
+  badgeText: { color: '#fff', fontWeight: '600' as const, fontSize: 12, textAlign: 'right' as const },
+  section: { padding: 20, borderBottomWidth: 1, borderBottomColor: '#eee' },
+  sectionTitle: { fontSize: 18, fontWeight: 'bold' as const, marginBottom: 10, color: '#333', textAlign: 'right' as const },
+  description: { fontSize: 16, lineHeight: 24, color: '#555', textAlign: 'right' as const },
+  detailRow: { flexDirection: 'row-reverse' as const, paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: '#f0f0f0' },
+  detailLabel: { flex: 1, fontSize: 16, color: '#666', textAlign: 'right' as const },
+  detailValue: { flex: 2, fontSize: 16, color: '#333', textAlign: 'right' as const }
+};
+
 const ClubDetails = () => {
   // Format date for display
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
+    return new Date(dateString).toLocaleDateString('ar', {
       year: 'numeric',
       month: 'long',
       day: 'numeric'
     });
   };
 
-  // Capitalize first letter of a string
+  // Capitalize first letter of a string (not needed for Arabic)
   const capitalize = (str: string) => {
-    return str.charAt(0).toUpperCase() + str.slice(1);
+    return str;
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView style={tw.container as ViewStyle}>
       <StatusBar style="auto" />
       <ScrollView>
-        <View className="items-center p-5 border-b border-gray-200">
+        <View style={tw.header as ViewStyle}>
           <Image 
             source={{ uri: clubData.logo }} 
-            className="w-24 h-24 rounded-full mb-4"
+            style={tw.logo as ImageStyle}
             defaultSource={require('../assets/imgs/icon.png')}
           />
-          <Text className="text-2xl font-bold mb-2">{clubData.name}</Text>
-          <View className="flex-row mt-1">
-            <View className="bg-gray-300 px-3 py-1.5 rounded-full mx-1">
-              <Text className="text-white font-semibold text-xs">{capitalize(clubData.type)}</Text>
+          <Text style={tw.name as TextStyle}>{clubData.name}</Text>
+          <View style={tw.badgeContainer as ViewStyle}>
+            <View style={tw.badge as ViewStyle}>
+              <Text style={tw.badgeText as TextStyle}>{clubData.type}</Text>
             </View>
-            <View className="bg-green-500 px-3 py-1.5 rounded-full mx-1">
-              <Text className="text-white font-semibold text-xs">{capitalize(clubData.status)}</Text>
+            <View style={[tw.badge as ViewStyle, tw.statusBadge as ViewStyle]}>
+              <Text style={tw.badgeText as TextStyle}>{clubData.status}</Text>
             </View>
           </View>
         </View>
 
-        <View className="p-5 border-b border-gray-200">
-          <Text className="text-lg font-bold mb-2 text-gray-800">About</Text>
-          <Text className="text-base leading-6 text-gray-600">{clubData.description}</Text>
+        <View style={tw.section as ViewStyle}>
+          <Text style={tw.sectionTitle as TextStyle}>نبذة</Text>
+          <Text style={tw.description as TextStyle}>{clubData.description}</Text>
         </View>
 
-        <View className="p-5 border-b border-gray-200">
-          <Text className="text-lg font-bold mb-2 text-gray-800">Details</Text>
-          <View className="flex-row py-2 border-b border-gray-100">
-            <Text className="flex-1 text-base text-gray-500">Founded:</Text>
-            <Text className="flex-2 text-base text-gray-800">{formatDate(clubData.foundingDate)}</Text>
+        <View style={tw.section as ViewStyle}>
+          <Text style={tw.sectionTitle as TextStyle}>التفاصيل</Text>
+          <View style={tw.detailRow as ViewStyle}>
+            <Text style={tw.detailLabel as TextStyle}>تأسس في:</Text>
+            <Text style={tw.detailValue as TextStyle}>{formatDate(clubData.foundingDate)}</Text>
           </View>
-          <View className="flex-row py-2 border-b border-gray-100">
-            <Text className="flex-1 text-base text-gray-500">Type:</Text>
-            <Text className="flex-2 text-base text-gray-800">{capitalize(clubData.type)}</Text>
+          <View style={tw.detailRow as ViewStyle}>
+            <Text style={tw.detailLabel as TextStyle}>النوع:</Text>
+            <Text style={tw.detailValue as TextStyle}>{clubData.type}</Text>
           </View>
-          <View className="flex-row py-2 border-b border-gray-100">
-            <Text className="flex-1 text-base text-gray-500">Status:</Text>
-            <Text className="flex-2 text-base text-gray-800">{capitalize(clubData.status)}</Text>
+          <View style={tw.detailRow as ViewStyle}>
+            <Text style={tw.detailLabel as TextStyle}>الحالة:</Text>
+            <Text style={tw.detailValue as TextStyle}>{clubData.status}</Text>
           </View>
         </View>
       </ScrollView>
