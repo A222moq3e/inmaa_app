@@ -1,3 +1,6 @@
+# NOTE
+add API_URL to you .env file
+
 # Structure
 ```
 /MyApp
