@@ -1,4 +1,36 @@
 {
     "welcome": "Welcome",
-    "login": "Login"
+    "login": "Login",
+    "loading": "Loading...",
+    "club": {
+      "name": "Programming Club",
+      "description": "A club for programming enthusiasts",
+      "type": "specialized",
+      "status": "active",
+      "about": "About",
+      "details": "Details",
+      "founded": "Founded",
+      "type_label": "Type",
+      "status_label": "Status",
+      "not_found": "Club not found"
+    },
+    "errors": {
+      "fetch_clubs": "Failed to fetch clubs",
+      "fetch_club": "Failed to fetch club details",
+      "create_club": "Failed to create club",
+      "update_club": "Failed to update club",
+      "delete_club": "Failed to delete club",
+      "reset_term": "Failed to reset club term",
+      "fetch_memberships": "Failed to fetch memberships",
+      "fetch_membership": "Failed to fetch membership",
+      "create_membership": "Failed to create membership",
+      "update_membership": "Failed to update membership",
+      "join_club": "Failed to join club",
+      "leave_club": "Failed to leave club",
+      "delete_membership": "Failed to delete membership",
+      "login_failed": "Login failed",
+      "user_data_error": "Error parsing user data",
+      "no_clubs": "No clubs found",
+      "generic": "An error occurred during the operation"
+    }
   }
