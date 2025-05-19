@@ -1,22 +1,11 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, Image, ScrollView, SafeAreaView, ViewStyle, TextStyle, ImageStyle, I18nManager } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
+import { useTranslation } from 'react-i18next';
+import { getClubByUuid, Club } from '../api/ClubDetails';
 
 // Enable RTL layout
 I18nManager.forceRTL(true);
-
-// Mock data for the club - in a real app, this would come from props or context
-const clubData = {
-  id: 1,
-  name: "نادي البرمجة",
-  description: "نادٍ لمحبي البرمجة",
-  logo: "https://placehold.co/600x400/png",
-  type: "متخصص",
-  status: "نشط",
-  foundingDate: "2024-01-01",
-  createdAt: "2024-01-01T00:00:00Z",
-  updatedAt: "2024-01-01T00:00:00Z"
-};
 
 // Inline style objects that mimic Tailwind/NativeWind classes
 const tw: Record<string, ViewStyle | TextStyle | ImageStyle> = {
@@ -33,23 +22,65 @@ const tw: Record<string, ViewStyle | TextStyle | ImageStyle> = {
   description: { fontSize: 16, lineHeight: 24, color: '#555', textAlign: 'right' as const },
   detailRow: { flexDirection: 'row-reverse' as const, paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: '#f0f0f0' },
   detailLabel: { flex: 1, fontSize: 16, color: '#666', textAlign: 'right' as const },
-  detailValue: { flex: 2, fontSize: 16, color: '#333', textAlign: 'right' as const }
+  detailValue: { flex: 2, fontSize: 16, color: '#333', textAlign: 'right' as const },
+  error: { color: 'red', textAlign: 'center', padding: 20, fontFamily: 'Arial', fontSize: 16 },
+  loading: { textAlign: 'center', padding: 20, fontFamily: 'Arial', fontSize: 16 }
 };
 
-const ClubDetails = () => {
+interface ClubDetailsProps {
+  clubUuid: string;
+}
+
+const ClubDetails: React.FC<ClubDetailsProps> = ({ clubUuid }) => {
+  const { t } = useTranslation();
+  const [club, setClub] = useState<Club | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchClub = async () => {
+      try {
+        const data = await getClubByUuid(clubUuid);
+        console.log('data', data);
+        
+        setClub(data);
+        setError(null);
+      } catch (err) {
+        console.error('Error fetching club:', err);
+        setError(err instanceof Error ? err.message : t('errors.generic'));
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchClub();
+  }, [clubUuid, t]);
+
   // Format date for display
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('ar', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
+    try {
+      return new Date(dateString).toLocaleDateString('ar', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+    } catch (error) {
+      console.error('Error formatting date:', error);
+      return dateString;
+    }
   };
 
-  // Capitalize first letter of a string (not needed for Arabic)
-  const capitalize = (str: string) => {
-    return str;
-  };
+  if (loading) {
+    return <Text style={tw.loading as TextStyle}>{t('loading')}</Text>;
+  }
+
+  if (error) {
+    return <Text style={tw.error as TextStyle}>{error}</Text>;
+  }
+
+  if (!club) {
+    return <Text style={tw.error as TextStyle}>{t('club.not_found')}</Text>;
+  }
 
   return (
     <SafeAreaView style={tw.container as ViewStyle}>
@@ -57,39 +88,39 @@ const ClubDetails = () => {
       <ScrollView>
         <View style={tw.header as ViewStyle}>
           <Image 
-            source={{ uri: clubData.logo }} 
+            source={{ uri: club.logo }} 
             style={tw.logo as ImageStyle}
             defaultSource={require('../assets/imgs/icon.png')}
           />
-          <Text style={tw.name as TextStyle}>{clubData.name}</Text>
+          <Text style={tw.name as TextStyle}>{club.name}</Text>
           <View style={tw.badgeContainer as ViewStyle}>
             <View style={tw.badge as ViewStyle}>
-              <Text style={tw.badgeText as TextStyle}>{clubData.type}</Text>
+              <Text style={tw.badgeText as TextStyle}>{club.type}</Text>
             </View>
             <View style={[tw.badge as ViewStyle, tw.statusBadge as ViewStyle]}>
-              <Text style={tw.badgeText as TextStyle}>{clubData.status}</Text>
+              <Text style={tw.badgeText as TextStyle}>{club.status}</Text>
             </View>
           </View>
         </View>
 
         <View style={tw.section as ViewStyle}>
-          <Text style={tw.sectionTitle as TextStyle}>نبذة</Text>
-          <Text style={tw.description as TextStyle}>{clubData.description}</Text>
+          <Text style={tw.sectionTitle as TextStyle}>{t('club.about')}</Text>
+          <Text style={tw.description as TextStyle}>{club.description}</Text>
         </View>
 
         <View style={tw.section as ViewStyle}>
-          <Text style={tw.sectionTitle as TextStyle}>التفاصيل</Text>
+          <Text style={tw.sectionTitle as TextStyle}>{t('club.details')}</Text>
           <View style={tw.detailRow as ViewStyle}>
-            <Text style={tw.detailLabel as TextStyle}>تأسس في:</Text>
-            <Text style={tw.detailValue as TextStyle}>{formatDate(clubData.foundingDate)}</Text>
+            <Text style={tw.detailLabel as TextStyle}>{t('club.founded')}:</Text>
+            <Text style={tw.detailValue as TextStyle}>{formatDate(club.foundingDate)}</Text>
           </View>
           <View style={tw.detailRow as ViewStyle}>
-            <Text style={tw.detailLabel as TextStyle}>النوع:</Text>
-            <Text style={tw.detailValue as TextStyle}>{clubData.type}</Text>
+            <Text style={tw.detailLabel as TextStyle}>{t('club.type_label')}:</Text>
+            <Text style={tw.detailValue as TextStyle}>{club.type}</Text>
           </View>
           <View style={tw.detailRow as ViewStyle}>
-            <Text style={tw.detailLabel as TextStyle}>الحالة:</Text>
-            <Text style={tw.detailValue as TextStyle}>{clubData.status}</Text>
+            <Text style={tw.detailLabel as TextStyle}>{t('club.status_label')}:</Text>
+            <Text style={tw.detailValue as TextStyle}>{club.status}</Text>
           </View>
         </View>
       </ScrollView>
