@@ -4,9 +4,21 @@ import { Text } from '~/components/ui/text';
 import { Avatar, AvatarImage, AvatarFallback } from '~/components/ui/avatar';
 import { EventCard } from '~/components/ui/event-card';
 import { getUserProfile, UserProfile, EventRegistration } from '~/api/profile';
+import { getEventById, Event } from '~/api/EventDetails';
 import { useAuth } from '~/context/AuthContext';
 import { Button } from '~/components/ui/button';
 import { useTranslation } from 'react-i18next';
+
+// Interface to store event details with registration info
+interface EventWithRegistration {
+  id: number;
+  eventId: number;
+  status: string;
+  title: string;
+  date: string;
+  location: string;
+  registrationDate: string;
+}
 
 export default function ProfileScreen() {
   const { user, logout } = useAuth();
@@ -15,6 +27,8 @@ export default function ProfileScreen() {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [refreshing, setRefreshing] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const [events, setEvents] = useState<EventWithRegistration[]>([]);
+  const [loadingEvents, setLoadingEvents] = useState<boolean>(false);
 
   const loadUserProfile = async (forceRefresh = false) => {
     try {
@@ -28,6 +42,14 @@ export default function ProfileScreen() {
       const userId = user.id || user.uuid || '';
       const profile = await getUserProfile(userId, undefined, undefined, forceRefresh);
       setUserProfile(profile);
+      
+      // If there are event registrations, load the actual event details
+      if (profile.eventRegistration && profile.eventRegistration.length > 0) {
+        await loadEventDetails(profile.eventRegistration);
+      } else {
+        setEvents([]);
+      }
+      
       setError(null);
     } catch (err) {
       console.error('Failed to load profile:', err);
@@ -35,6 +57,73 @@ export default function ProfileScreen() {
     } finally {
       setIsLoading(false);
       setRefreshing(false);
+    }
+  };
+
+  // Function to load event details for each registration
+  const loadEventDetails = async (registrations: EventRegistration[]) => {
+    setLoadingEvents(true);
+    try {
+      const eventPromises = registrations.map(async (reg) => {
+        try {
+          // Set query parameters for event API
+          const queryParams = {
+            fields: 'id,name,description,eventStart,eventEnd,location,status',
+          };
+          
+          // Fetch event details using eventId
+          const eventResponse = await getEventById(reg.eventId, queryParams);
+          const eventData = eventResponse.event || (eventResponse.data?.event);
+          
+          if (!eventData) {
+            // If event not found, return placeholder data
+            return {
+              id: reg.id,
+              eventId: reg.eventId,
+              status: reg.status,
+              title: `Event #${reg.eventId}`,
+              date: new Date(reg.createdAt).toLocaleDateString(),
+              location: 'Unknown',
+              registrationDate: new Date(reg.createdAt).toLocaleDateString(),
+            };
+          }
+          
+          // Format dates for display
+          const eventDate = eventData.eventStart ? 
+            new Date(eventData.eventStart).toLocaleDateString() : 
+            'TBD';
+            
+          return {
+            id: reg.id,
+            eventId: reg.eventId,
+            status: reg.status,
+            title: eventData.name,
+            date: eventDate,
+            location: 'University Campus', // We could add a location field to the Event API in the future
+            registrationDate: new Date(reg.createdAt).toLocaleDateString(),
+          };
+        } catch (err) {
+          console.error(`Failed to load event ${reg.eventId}:`, err);
+          // Return placeholder data on error
+          return {
+            id: reg.id,
+            eventId: reg.eventId,
+            status: reg.status,
+            title: `Event #${reg.eventId}`,
+            date: new Date(reg.createdAt).toLocaleDateString(),
+            location: 'Error loading details',
+            registrationDate: new Date(reg.createdAt).toLocaleDateString(),
+          };
+        }
+      });
+      
+      // Wait for all event details to be fetched
+      const eventDetails = await Promise.all(eventPromises);
+      setEvents(eventDetails);
+    } catch (err) {
+      console.error('Failed to load event details:', err);
+    } finally {
+      setLoadingEvents(false);
     }
   };
 
@@ -63,19 +152,6 @@ export default function ProfileScreen() {
         },
       ]
     );
-  };
-
-  // Format event registration data for the event card component
-  const formatEventData = (registrations: EventRegistration[] = []) => {
-    return registrations.map(reg => ({
-      id: reg.id,
-      eventId: reg.eventId,
-      status: reg.status,
-      date: new Date(reg.createdAt).toLocaleDateString(),
-      // These would come from the actual event data in a complete implementation
-      title: `Event #${reg.eventId}`,
-      location: 'University Campus'
-    }));
   };
 
   if (isLoading) {
@@ -139,8 +215,10 @@ export default function ProfileScreen() {
         {/* Registered Events */}
         <View className="mb-6">
           <Text className="text-xl font-bold mb-4">{t('profile.registeredEvents', 'Registered Events')}</Text>
-          {userProfile?.eventRegistration && userProfile.eventRegistration.length > 0 ? (
-            formatEventData(userProfile.eventRegistration).map(event => (
+          {loadingEvents ? (
+            <ActivityIndicator size="small" color="#0000ff" />
+          ) : events && events.length > 0 ? (
+            events.map(event => (
               <EventCard key={event.id} event={event} />
             ))
           ) : (
