@@ -85,13 +85,13 @@ export default function LoginScreen() {
             {loading ? (
               <ActivityIndicator size="small" color="#ffffff" />
             ) : (
-              t('auth.login', 'Login')
+              <Text>{t('auth.login', 'Login')}</Text>
             )}
           </Button>
 
           <View className="flex-row justify-center mt-4">
-            // TODO: Fix Text in arabic 
-            // TODO: add a link to reset password
+            {/* TODO: Fix Text in arabic 
+            TODO: add a link to reset password */}
             <Text className="text-muted-foreground">{t('auth.dont_have_account', "Don't have an account?")} </Text>
             <TouchableOpacity onPress={navigateToRegister}>
               <Text className="text-primary font-semibold">{t('auth.register', 'Register')}</Text>
