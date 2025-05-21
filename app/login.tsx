@@ -19,7 +19,9 @@ export default function LoginScreen() {
     }
 
     try {
+      console.log('tempLogin', email, nationalId);
       await tempLogin({ email, nationalId });
+
       router.replace('/');
     } catch (err) {
       console.error('Login error:', err);
