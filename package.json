@@ -18,7 +18,8 @@
     "nativewind": "^4.1.23",
     "react": "19.0.0",
     "react-i18next": "^15.5.1",
-    "react-native": "0.79.2"
+    "react-native": "0.79.2",
+    "jest-expo": "~53.0.5"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
