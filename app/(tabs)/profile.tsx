@@ -101,7 +101,7 @@ export default function ProfileScreen() {
     >
       {/* Profile Header */}
       <View className="p-6 bg-primary/5 border-b border-border">
-        <View className="flex-row items-center space-x-4 mb-4">
+        <View className="flex-row items-center space-x-6 mb-4">
           <Avatar className="h-20 w-20">
             {userProfile?.profileImage ? (
               <AvatarImage 
@@ -116,7 +116,7 @@ export default function ProfileScreen() {
               </AvatarFallback>
             )}
           </Avatar>
-          <View className="flex-1">
+          <View className="flex-1 ml-2">
             <Text className="text-2xl font-bold">{userProfile?.displayName}</Text>
             <Text className="text-muted-foreground">{userProfile?.email}</Text>
           </View>
