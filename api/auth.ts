@@ -5,6 +5,7 @@ const FALLBACK_API_URL = 'http://10.0.2.2:5000';
 const EFFECTIVE_API_URL = API_URL || FALLBACK_API_URL;
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import i18n from '../i18n';
+import { clearAllProfileCaches } from './profile';
 
 // Types
 export interface LoginCredentials {
@@ -136,6 +137,7 @@ export const register = async (userData: RegisterData): Promise<User> => {
 export const logout = async (): Promise<void> => {
   await AsyncStorage.removeItem(AUTH_TOKEN_KEY);
   await AsyncStorage.removeItem(USER_DATA_KEY);
+  await clearAllProfileCaches(); // Clear all profile caches on logout
 };
 
 export const isAuthenticated = async (): Promise<boolean> => {

@@ -14,7 +14,7 @@ export default function ProfileScreen() {
   const [refreshing, setRefreshing] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  const loadUserProfile = async () => {
+  const loadUserProfile = async (forceRefresh = false) => {
     try {
       if (!user || (!user.id && !user.uuid)) {
         setError('User ID not found in auth state');
@@ -24,7 +24,7 @@ export default function ProfileScreen() {
       
       // Use either id or uuid depending on what's available
       const userId = user.id || user.uuid || '';
-      const profile = await getUserProfile(userId);
+      const profile = await getUserProfile(userId, undefined, undefined, forceRefresh);
       setUserProfile(profile);
       setError(null);
     } catch (err) {
@@ -44,7 +44,7 @@ export default function ProfileScreen() {
   // Pull to refresh handler
   const onRefresh = () => {
     setRefreshing(true);
-    loadUserProfile();
+    loadUserProfile(true); // Force refresh from API
   };
 
   // Handle logout
