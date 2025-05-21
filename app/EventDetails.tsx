@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -14,32 +14,32 @@ import {
   StyleProp,
   Alert,
   Dimensions,
-} from "react-native";
-import { StatusBar } from "expo-status-bar";
-import { useTranslation } from "react-i18next";
-import { useLocalSearchParams, useRouter } from "expo-router";
+} from 'react-native';
+import { StatusBar } from 'expo-status-bar';
+import { useTranslation } from 'react-i18next';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import {
   getEventByUuid,
   Event,
   EventResponse,
   registerForEvent,
   unregisterFromEvent,
-} from "../api/EventDetails";
-import { isAuthenticated } from "../api/auth";
+} from '../api/EventDetails';
+import { isAuthenticated } from '../api/auth';
 
 // Enable RTL layout
 I18nManager.forceRTL(true);
 
 // Get screen width
-const screenWidth = Dimensions.get("window").width;
+const screenWidth = Dimensions.get('window').width;
 
 // Inline style objects that mimic Tailwind/NativeWind classes
 const tw = {
-  container: { flex: 1, backgroundColor: "#fff" } as ViewStyle,
+  container: { flex: 1, backgroundColor: '#fff' } as ViewStyle,
   header: {
-    alignItems: "center",
+    alignItems: 'center',
     borderBottomWidth: 1,
-    borderBottomColor: "#eee",
+    borderBottomColor: '#eee',
   } as ViewStyle,
   eventImage: {
     width: screenWidth,
@@ -51,146 +51,146 @@ const tw = {
   } as ViewStyle,
   name: {
     fontSize: 24,
-    fontWeight: "bold" as const,
+    fontWeight: 'bold' as const,
     marginBottom: 10,
-    textAlign: "right",
+    textAlign: 'right',
   } as TextStyle,
   badgeContainer: {
-    flexDirection: "row",
-    justifyContent: "center",
+    flexDirection: 'row',
+    justifyContent: 'center',
     marginTop: 5,
   } as ViewStyle,
   badge: {
-    backgroundColor: "#e0e0e0",
+    backgroundColor: '#e0e0e0',
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 20,
     marginHorizontal: 5,
   } as ViewStyle,
-  statusBadge: { backgroundColor: "#4CAF50" } as ViewStyle,
+  statusBadge: { backgroundColor: '#4CAF50' } as ViewStyle,
   badgeText: {
-    color: "#fff",
-    fontWeight: "600" as const,
+    color: '#fff',
+    fontWeight: '600' as const,
     fontSize: 12,
-    textAlign: "center",
+    textAlign: 'center',
   } as TextStyle,
   section: {
     padding: 20,
     borderBottomWidth: 1,
-    borderBottomColor: "#eee",
+    borderBottomColor: '#eee',
   } as ViewStyle,
   sectionTitle: {
     fontSize: 18,
-    fontWeight: "bold" as const,
+    fontWeight: 'bold' as const,
     marginBottom: 10,
-    color: "#333",
-    textAlign: "right",
+    color: '#333',
+    textAlign: 'right',
   } as TextStyle,
   description: {
     fontSize: 16,
     lineHeight: 24,
-    color: "#555",
-    textAlign: "right",
+    color: '#555',
+    textAlign: 'right',
   } as TextStyle,
   detailRow: {
-    flexDirection: "row-reverse",
+    flexDirection: 'row-reverse',
     paddingVertical: 8,
     borderBottomWidth: 1,
-    borderBottomColor: "#f0f0f0",
+    borderBottomColor: '#f0f0f0',
   } as ViewStyle,
   detailLabel: {
     flex: 1,
     fontSize: 16,
-    color: "#666",
-    textAlign: "right",
+    color: '#666',
+    textAlign: 'right',
   } as TextStyle,
   detailValue: {
     flex: 2,
     fontSize: 16,
-    color: "#333",
-    textAlign: "right",
+    color: '#333',
+    textAlign: 'right',
   } as TextStyle,
   error: {
-    color: "red",
-    textAlign: "center",
+    color: 'red',
+    textAlign: 'center',
     padding: 20,
-    fontFamily: "Arial",
+    fontFamily: 'Arial',
     fontSize: 16,
   } as TextStyle,
   loading: {
-    textAlign: "center",
+    textAlign: 'center',
     padding: 20,
-    fontFamily: "Arial",
+    fontFamily: 'Arial',
     fontSize: 16,
   } as TextStyle,
   buttonText: {
-    color: "#fff",
+    color: '#fff',
     fontSize: 16,
-    fontWeight: "bold" as const,
-    textAlign: "center",
+    fontWeight: 'bold' as const,
+    textAlign: 'center',
   } as TextStyle,
   seatsInfo: {
-    flexDirection: "row-reverse",
-    justifyContent: "center",
+    flexDirection: 'row-reverse',
+    justifyContent: 'center',
     marginTop: 10,
     padding: 10,
-    backgroundColor: "#f8f8f8",
+    backgroundColor: '#f8f8f8',
     borderRadius: 8,
   } as ViewStyle,
   seatsText: {
     fontSize: 14,
-    color: "#555",
-    textAlign: "center",
+    color: '#555',
+    textAlign: 'center',
   } as TextStyle,
   statusBox: {
     marginTop: 15,
     padding: 10,
-    backgroundColor: "#f5f5f5",
+    backgroundColor: '#f5f5f5',
     borderRadius: 8,
-    alignItems: "center",
+    alignItems: 'center',
   } as ViewStyle,
   statusText: {
     fontSize: 14,
-    textAlign: "center",
+    textAlign: 'center',
   } as TextStyle,
   // New styles
   floatingButtonContainer: {
-    position: "absolute",
+    position: 'absolute',
     bottom: 0,
     left: 0,
     right: 0,
     paddingVertical: 15,
     paddingHorizontal: 20,
-    backgroundColor: "white",
+    backgroundColor: 'white',
     borderTopWidth: 1,
-    borderTopColor: "#eee",
+    borderTopColor: '#eee',
     elevation: 5,
-    shadowColor: "#000",
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: -3 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
-    paddingBottom: Platform.OS === "ios" ? 30 : 15,
+    paddingBottom: Platform.OS === 'ios' ? 30 : 15,
     zIndex: 10,
   } as ViewStyle,
   floatingButton: {
-    backgroundColor: "#3498db",
+    backgroundColor: '#3498db',
     paddingVertical: 14,
     borderRadius: 25,
-    width: "100%",
-    alignItems: "center",
+    width: '100%',
+    alignItems: 'center',
   } as ViewStyle,
   registerButton: {
-    backgroundColor: "#3498db",
+    backgroundColor: '#3498db',
   } as ViewStyle,
   unregisterButton: {
-    backgroundColor: "#e74c3c",
+    backgroundColor: '#e74c3c',
   } as ViewStyle,
   buttonDisabled: {
-    backgroundColor: "#bdc3c7",
+    backgroundColor: '#bdc3c7',
   } as ViewStyle,
   registerSection: {
     padding: 20,
-    backgroundColor: "#f9f9f9",
+    backgroundColor: '#f9f9f9',
     borderRadius: 10,
     marginTop: 15,
     marginHorizontal: 20,
@@ -226,7 +226,7 @@ export default function EventDetailsScreen() {
   useEffect(() => {
     const fetchEvent = async () => {
       if (!eventUuid) {
-        setError(t("event.not_found"));
+        setError(t('event.not_found'));
         setLoading(false);
         return;
       }
@@ -249,12 +249,12 @@ export default function EventDetailsScreen() {
           setIsRegistered(response.isRegistered || false);
           setIsEventAdmin(response.isEventAdmin || false);
         } else {
-          throw new Error(t("event.not_found"));
+          throw new Error(t('event.not_found'));
         }
 
         setError(null);
       } catch (err) {
-        setError(err instanceof Error ? err.message : t("errors.generic"));
+        setError(err instanceof Error ? err.message : t('errors.generic'));
       } finally {
         setLoading(false);
       }
@@ -266,15 +266,16 @@ export default function EventDetailsScreen() {
   // Format date for display
   const formatDate = (dateString: string) => {
     try {
-      return new Date(dateString).toLocaleDateString("ar", {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
+      // Use a simpler date format (YYYY-MM-DD HH:MM)
+      const date = new Date(dateString);
+      return date.toLocaleString('ar', {
+        year: 'numeric',
+        month: 'numeric',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: 'numeric',
       });
     } catch (error) {
-      console.error("Error formatting date:", error);
       return dateString;
     }
   };
@@ -284,10 +285,10 @@ export default function EventDetailsScreen() {
 
     if (!isUserAuthenticated) {
       Alert.alert(
-        t("login.required_title") || "Login Required",
-        t("login.required_message") ||
-          "Please login to register for this event",
-        [{ text: "OK" }]
+        t('login.required_title') || 'Login Required',
+        t('login.required_message') ||
+          'Please login to register for this event',
+        [{ text: 'OK' }]
       );
       return;
     }
@@ -303,7 +304,16 @@ export default function EventDetailsScreen() {
       }
       setError(null);
     } catch (err) {
-      setError(err instanceof Error ? err.message : t("errors.generic"));
+      // Show user-friendly error message
+      const errorMessage =
+        err instanceof Error ? err.message : t('errors.generic');
+      Alert.alert(
+        t('errors.registration_failed') || 'Registration Failed',
+        errorMessage,
+        [{ text: 'OK' }]
+      );
+
+      setError(errorMessage);
     } finally {
       setIsRegistering(false);
     }
@@ -325,7 +335,7 @@ export default function EventDetailsScreen() {
   };
 
   if (loading) {
-    return <Text style={tw.loading}>{t("loading")}</Text>;
+    return <Text style={tw.loading}>{t('loading')}</Text>;
   }
 
   if (error) {
@@ -333,7 +343,7 @@ export default function EventDetailsScreen() {
   }
 
   if (!event) {
-    return <Text style={tw.error}>{t("event.not_found")}</Text>;
+    return <Text style={tw.error}>{t('event.not_found')}</Text>;
   }
 
   // Determine if registration button should be disabled
@@ -358,10 +368,10 @@ export default function EventDetailsScreen() {
             source={
               event.image
                 ? { uri: event.image }
-                : require("../assets/imgs/event-default.png")
+                : require('../assets/imgs/event-default.png')
             }
             style={tw.eventImage}
-            defaultSource={require("../assets/imgs/event-default.png")}
+            defaultSource={require('../assets/imgs/event-default.png')}
             resizeMode="cover"
           />
           <View style={tw.eventInfoContainer}>
@@ -371,12 +381,12 @@ export default function EventDetailsScreen() {
                 style={[
                   tw.badge,
                   isEventPast(event)
-                    ? ({ backgroundColor: "#7f8c8d" } as ViewStyle)
+                    ? ({ backgroundColor: '#7f8c8d' } as ViewStyle)
                     : tw.statusBadge,
                 ]}
               >
                 <Text style={tw.badgeText}>
-                  {isEventPast(event) ? t("event.past") : t("event.upcoming")}
+                  {isEventPast(event) ? t('event.past') : t('event.upcoming')}
                 </Text>
               </View>
             </View>
@@ -384,33 +394,33 @@ export default function EventDetailsScreen() {
             {/* Seats information */}
             <View style={tw.seatsInfo}>
               <Text style={tw.seatsText}>
-                {t("event.seats_available")}: {event.seatsAvailable}
+                {t('event.seats_available')}: {event.seatsAvailable}
               </Text>
             </View>
           </View>
         </View>
 
         <View style={tw.section}>
-          <Text style={tw.sectionTitle}>{t("event.about")}</Text>
+          <Text style={tw.sectionTitle}>{t('event.about')}</Text>
           <Text style={tw.description}>{event.description}</Text>
         </View>
 
         <View style={tw.section}>
-          <Text style={tw.sectionTitle}>{t("event.details")}</Text>
+          <Text style={tw.sectionTitle}>{t('event.details')}</Text>
           <View style={tw.detailRow}>
-            <Text style={tw.detailLabel}>{t("event.start_date")}:</Text>
+            <Text style={tw.detailLabel}>{t('event.start_date')}:</Text>
             <Text style={tw.detailValue}>{formatDate(event.eventStart)}</Text>
           </View>
           <View style={tw.detailRow}>
-            <Text style={tw.detailLabel}>{t("event.end_date")}:</Text>
+            <Text style={tw.detailLabel}>{t('event.end_date')}:</Text>
             <Text style={tw.detailValue}>{formatDate(event.eventEnd)}</Text>
           </View>
           <View style={tw.detailRow}>
             <Text style={tw.detailLabel}>
-              {t("event.registration_period")}:
+              {t('event.registration_period')}:
             </Text>
             <Text style={tw.detailValue}>
-              {formatDate(event.registrationStart)} -{" "}
+              {formatDate(event.registrationStart)} -{' '}
               {formatDate(event.registrationEnd)}
             </Text>
           </View>
@@ -420,16 +430,16 @@ export default function EventDetailsScreen() {
             <View
               style={{
                 ...tw.statusBox,
-                backgroundColor: "#e8f5e9",
+                backgroundColor: '#e8f5e9',
               }}
             >
               <Text
                 style={{
                   ...tw.statusText,
-                  color: "#2e7d32",
+                  color: '#2e7d32',
                 }}
               >
-                {t("event.registration_open")}
+                {t('event.registration_open')}
               </Text>
             </View>
           )}
@@ -439,17 +449,17 @@ export default function EventDetailsScreen() {
             <View
               style={{
                 ...tw.statusBox,
-                backgroundColor: "#e3f2fd",
+                backgroundColor: '#e3f2fd',
                 marginTop: 10,
               }}
             >
               <Text
                 style={{
                   ...tw.statusText,
-                  color: "#1565c0",
+                  color: '#1565c0',
                 }}
               >
-                {t("event.you_are_registered")}
+                {t('event.you_are_registered')}
               </Text>
             </View>
           )}
@@ -458,8 +468,8 @@ export default function EventDetailsScreen() {
         {/* Admin section - only show if user is admin */}
         {isEventAdmin && (
           <View style={tw.section}>
-            <Text style={tw.sectionTitle}>{t("event.admin_tools")}</Text>
-            <Text style={tw.description}>{t("event.admin_message")}</Text>
+            <Text style={tw.sectionTitle}>{t('event.admin_tools')}</Text>
+            <Text style={tw.description}>{t('event.admin_message')}</Text>
           </View>
         )}
 
@@ -483,10 +493,10 @@ export default function EventDetailsScreen() {
         >
           <Text style={tw.buttonText}>
             {isRegistering
-              ? t("event.processing")
+              ? t('event.processing')
               : isRegistered
-              ? t("event.unregister")
-              : t("event.register")}
+              ? t('event.unregister')
+              : t('event.register')}
           </Text>
         </TouchableOpacity>
       </View>

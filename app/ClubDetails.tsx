@@ -1,38 +1,106 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, Image, ScrollView, SafeAreaView, ViewStyle, TextStyle, ImageStyle, I18nManager } from 'react-native';
-import { StatusBar } from 'expo-status-bar';
-import { useTranslation } from 'react-i18next';
-import { useLocalSearchParams } from 'expo-router';
-import { getClubByUuid, Club } from '../api/ClubDetails';
+import React, { useEffect, useState } from "react";
+import {
+  View,
+  Text,
+  Image,
+  ScrollView,
+  SafeAreaView,
+  ViewStyle,
+  TextStyle,
+  ImageStyle,
+  I18nManager,
+} from "react-native";
+import { StatusBar } from "expo-status-bar";
+import { useTranslation } from "react-i18next";
+import { useLocalSearchParams } from "expo-router";
+import { getClubByUuid, Club } from "../api/ClubDetails";
 
 // Enable RTL layout
 I18nManager.forceRTL(true);
 
 // Inline style objects that mimic Tailwind/NativeWind classes
 const tw: Record<string, ViewStyle | TextStyle | ImageStyle> = {
-  container: { flex: 1, backgroundColor: '#fff' },
-  header: { alignItems: 'center' as const, padding: 20, borderBottomWidth: 1, borderBottomColor: '#eee' },
+  container: { flex: 1, backgroundColor: "#fff" },
+  header: {
+    alignItems: "center" as const,
+    padding: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: "#eee",
+  },
   logo: { width: 100, height: 100, borderRadius: 50, marginBottom: 15 },
-  name: { fontSize: 24, fontWeight: 'bold' as const, marginBottom: 10, textAlign: 'right' as const },
-  badgeContainer: { flexDirection: 'row-reverse' as const, marginTop: 5 },
-  badge: { backgroundColor: '#e0e0e0', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20, marginHorizontal: 5 },
-  statusBadge: { backgroundColor: '#4CAF50' },
-  badgeText: { color: '#fff', fontWeight: '600' as const, fontSize: 12, textAlign: 'right' as const },
-  section: { padding: 20, borderBottomWidth: 1, borderBottomColor: '#eee' },
-  sectionTitle: { fontSize: 18, fontWeight: 'bold' as const, marginBottom: 10, color: '#333', textAlign: 'right' as const },
-  description: { fontSize: 16, lineHeight: 24, color: '#555', textAlign: 'right' as const },
-  detailRow: { flexDirection: 'row-reverse' as const, paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: '#f0f0f0' },
-  detailLabel: { flex: 1, fontSize: 16, color: '#666', textAlign: 'right' as const },
-  detailValue: { flex: 2, fontSize: 16, color: '#333', textAlign: 'right' as const },
-  error: { color: 'red', textAlign: 'center', padding: 20, fontFamily: 'Arial', fontSize: 16 },
-  loading: { textAlign: 'center', padding: 20, fontFamily: 'Arial', fontSize: 16 }
+  name: {
+    fontSize: 24,
+    fontWeight: "bold" as const,
+    marginBottom: 10,
+    textAlign: "right" as const,
+  },
+  badgeContainer: { flexDirection: "row-reverse" as const, marginTop: 5 },
+  badge: {
+    backgroundColor: "#e0e0e0",
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
+    marginHorizontal: 5,
+  },
+  statusBadge: { backgroundColor: "#4CAF50" },
+  badgeText: {
+    color: "#fff",
+    fontWeight: "600" as const,
+    fontSize: 12,
+    textAlign: "right" as const,
+  },
+  section: { padding: 20, borderBottomWidth: 1, borderBottomColor: "#eee" },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: "bold" as const,
+    marginBottom: 10,
+    color: "#333",
+    textAlign: "right" as const,
+  },
+  description: {
+    fontSize: 16,
+    lineHeight: 24,
+    color: "#555",
+    textAlign: "right" as const,
+  },
+  detailRow: {
+    flexDirection: "row-reverse" as const,
+    paddingVertical: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: "#f0f0f0",
+  },
+  detailLabel: {
+    flex: 1,
+    fontSize: 16,
+    color: "#666",
+    textAlign: "right" as const,
+  },
+  detailValue: {
+    flex: 2,
+    fontSize: 16,
+    color: "#333",
+    textAlign: "right" as const,
+  },
+  error: {
+    color: "red",
+    textAlign: "center",
+    padding: 20,
+    fontFamily: "Arial",
+    fontSize: 16,
+  },
+  loading: {
+    textAlign: "center",
+    padding: 20,
+    fontFamily: "Arial",
+    fontSize: 16,
+  },
 };
 
 export default function ClubDetailsScreen() {
   const { t } = useTranslation();
   const params = useLocalSearchParams<{ uuid: string }>();
-  const clubUuid = params.uuid || '1'; // Default to '1' if no uuid provided
-  
+  const clubUuid = params.uuid || "3cfacfee-923e-48a0-a17e-b099cc95df6c"; // Default to '1' if no uuid provided
+
   const [club, setClub] = useState<Club | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -41,13 +109,13 @@ export default function ClubDetailsScreen() {
     const fetchClub = async () => {
       try {
         const data = await getClubByUuid(clubUuid);
-        console.log('data', data);
-        
+        console.log("data", data);
+
         setClub(data);
         setError(null);
       } catch (err) {
-        console.error('Error fetching club:', err);
-        setError(err instanceof Error ? err.message : t('errors.generic'));
+        console.error("Error fetching club:", err);
+        setError(err instanceof Error ? err.message : t("errors.generic"));
       } finally {
         setLoading(false);
       }
@@ -59,19 +127,19 @@ export default function ClubDetailsScreen() {
   // Format date for display
   const formatDate = (dateString: string) => {
     try {
-      return new Date(dateString).toLocaleDateString('ar', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
+      return new Date(dateString).toLocaleDateString("ar", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
       });
     } catch (error) {
-      console.error('Error formatting date:', error);
+      console.error("Error formatting date:", error);
       return dateString;
     }
   };
 
   if (loading) {
-    return <Text style={tw.loading as TextStyle}>{t('loading')}</Text>;
+    return <Text style={tw.loading as TextStyle}>{t("loading")}</Text>;
   }
 
   if (error) {
@@ -79,7 +147,7 @@ export default function ClubDetailsScreen() {
   }
 
   if (!club) {
-    return <Text style={tw.error as TextStyle}>{t('club.not_found')}</Text>;
+    return <Text style={tw.error as TextStyle}>{t("club.not_found")}</Text>;
   }
 
   return (
@@ -87,10 +155,10 @@ export default function ClubDetailsScreen() {
       <StatusBar style="auto" />
       <ScrollView>
         <View style={tw.header as ViewStyle}>
-          <Image 
-            source={{ uri: club.logo }} 
+          <Image
+            source={{ uri: club.logo }}
             style={tw.logo as ImageStyle}
-            defaultSource={require('../assets/imgs/icon.png')}
+            defaultSource={require("../assets/imgs/icon.png")}
           />
           <Text style={tw.name as TextStyle}>{club.name}</Text>
           <View style={tw.badgeContainer as ViewStyle}>
@@ -104,26 +172,34 @@ export default function ClubDetailsScreen() {
         </View>
 
         <View style={tw.section as ViewStyle}>
-          <Text style={tw.sectionTitle as TextStyle}>{t('club.about')}</Text>
+          <Text style={tw.sectionTitle as TextStyle}>{t("club.about")}</Text>
           <Text style={tw.description as TextStyle}>{club.description}</Text>
         </View>
 
         <View style={tw.section as ViewStyle}>
-          <Text style={tw.sectionTitle as TextStyle}>{t('club.details')}</Text>
+          <Text style={tw.sectionTitle as TextStyle}>{t("club.details")}</Text>
           <View style={tw.detailRow as ViewStyle}>
-            <Text style={tw.detailLabel as TextStyle}>{t('club.founded')}:</Text>
-            <Text style={tw.detailValue as TextStyle}>{formatDate(club.foundingDate)}</Text>
+            <Text style={tw.detailLabel as TextStyle}>
+              {t("club.founded")}:
+            </Text>
+            <Text style={tw.detailValue as TextStyle}>
+              {formatDate(club.foundingDate)}
+            </Text>
           </View>
           <View style={tw.detailRow as ViewStyle}>
-            <Text style={tw.detailLabel as TextStyle}>{t('club.type_label')}:</Text>
+            <Text style={tw.detailLabel as TextStyle}>
+              {t("club.type_label")}:
+            </Text>
             <Text style={tw.detailValue as TextStyle}>{club.type}</Text>
           </View>
           <View style={tw.detailRow as ViewStyle}>
-            <Text style={tw.detailLabel as TextStyle}>{t('club.status_label')}:</Text>
+            <Text style={tw.detailLabel as TextStyle}>
+              {t("club.status_label")}:
+            </Text>
             <Text style={tw.detailValue as TextStyle}>{club.status}</Text>
           </View>
         </View>
       </ScrollView>
     </SafeAreaView>
   );
-};
+}

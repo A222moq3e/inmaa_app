@@ -45,7 +45,7 @@ export interface LoginResponse {
   data: {
     token: string;
     user: User;
-  }
+  };
 }
 
 // AsyncStorage Keys
@@ -55,13 +55,13 @@ const USER_DATA_KEY = 'userData';
 // Helper to create headers with language support
 const createHeaders = (includeContentType = true): Record<string, string> => {
   const headers: Record<string, string> = {
-    'Accept-Language': 'ar' // Set Arabic as preferred language
+    'Accept-Language': 'ar', // Set Arabic as preferred language
   };
-  
+
   if (includeContentType) {
     headers['Content-Type'] = 'application/json; charset=UTF-8';
   }
-  
+
   return headers;
 };
 
@@ -80,15 +80,17 @@ export const login = async (credentials: LoginCredentials): Promise<User> => {
 
   const responseData: LoginResponse = await response.json();
   const { token, user } = responseData.data;
-  
+
   // Store token and user data
   await AsyncStorage.setItem(AUTH_TOKEN_KEY, token);
   await AsyncStorage.setItem(USER_DATA_KEY, JSON.stringify(user));
-  
+
   return user;
 };
 
-export const tempLogin = async (credentials: TempLoginCredentials): Promise<User> => {
+export const tempLogin = async (
+  credentials: TempLoginCredentials
+): Promise<User> => {
   const headers = createHeaders();
   const response = await fetch(`${EFFECTIVE_API_URL}/login/tmp`, {
     method: 'POST',
@@ -103,11 +105,11 @@ export const tempLogin = async (credentials: TempLoginCredentials): Promise<User
 
   const responseData: LoginResponse = await response.json();
   const { token, user } = responseData.data;
-  
+
   // Store token and user data
   await AsyncStorage.setItem(AUTH_TOKEN_KEY, token);
   await AsyncStorage.setItem(USER_DATA_KEY, JSON.stringify(user));
-  
+
   return user;
 };
 
@@ -126,11 +128,11 @@ export const register = async (userData: RegisterData): Promise<User> => {
 
   const responseData: LoginResponse = await response.json();
   const { token, user } = responseData.data;
-  
+
   // Store token and user data
   await AsyncStorage.setItem(AUTH_TOKEN_KEY, token);
   await AsyncStorage.setItem(USER_DATA_KEY, JSON.stringify(user));
-  
+
   return user;
 };
 
@@ -148,7 +150,7 @@ export const isAuthenticated = async (): Promise<boolean> => {
 export const getCurrentUser = async (): Promise<User | null> => {
   const userData = await AsyncStorage.getItem(USER_DATA_KEY);
   if (!userData) return null;
-  
+
   try {
     return JSON.parse(userData) as User;
   } catch (error) {
@@ -162,20 +164,37 @@ export const getAuthToken = async (): Promise<string | null> => {
 };
 
 // Helper function to create headers with authentication
-export const createAuthHeaders = async (includeContentType = true): Promise<Record<string, string>> => {
+export const createAuthHeaders = async (
+  includeContentType = true
+): Promise<Record<string, string>> => {
   const headers: Record<string, string> = {
-    'Accept-Language': 'ar' // Set Arabic as preferred language
+    'Accept-Language': 'ar', // Set Arabic as preferred language
   };
-  
-  const token = await getAuthToken();
-  
-  if (token) {
-    headers['Authorization'] = `Bearer ${token}`;
+
+  try {
+    const token = await getAuthToken();
+    const user = await getCurrentUser();
+
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+
+      // Include user ID in header for APIs that might need it
+      if (user && user.id) {
+        headers['X-User-ID'] = user.id.toString();
+      }
+    }
+
+    if (includeContentType) {
+      headers['Content-Type'] = 'application/json; charset=UTF-8';
+    }
+
+    return headers;
+  } catch (error) {
+    // Return basic headers even if there's an error
+    if (includeContentType) {
+      headers['Content-Type'] = 'application/json; charset=UTF-8';
+    }
+
+    return headers;
   }
-  
-  if (includeContentType) {
-    headers['Content-Type'] = 'application/json; charset=UTF-8';
-  }
-  
-  return headers;
-}; 
+};

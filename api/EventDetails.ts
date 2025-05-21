@@ -4,7 +4,7 @@ const API_URL = Constants.expoConfig?.extra?.API_URL;
 const FALLBACK_API_URL = "http://10.0.2.2:5000";
 const EFFECTIVE_API_URL = API_URL || FALLBACK_API_URL;
 
-import { createAuthHeaders } from "./auth";
+import { createAuthHeaders, getCurrentUser } from "./auth";
 import i18n from "../i18n";
 
 // Types
@@ -174,27 +174,67 @@ export const deleteEvent = async (eventUuid: string): Promise<void> => {
 };
 
 export const registerForEvent = async (eventUuid: string): Promise<void> => {
-  const headers = await createHeaders(true, false);
-  const response = await fetch(
-    `${EFFECTIVE_API_URL}/events/${eventUuid}/register`,
-    {
-      method: "POST",
-      headers,
+  try {
+    const headers = await createAuthHeaders(true);
+
+    // Get the current user ID
+    const currentUser = await getCurrentUser();
+    if (!currentUser || !currentUser.id) {
+      throw new Error(i18n.t("errors.login_required"));
     }
-  );
-  if (!response.ok) throw new Error(i18n.t("errors.register_event"));
+
+    const response = await fetch(
+      `${EFFECTIVE_API_URL}/events/${eventUuid}/register`,
+      {
+        method: "POST",
+        headers,
+        body: JSON.stringify({
+          userId: currentUser.id,
+        }),
+      }
+    );
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => null);
+      throw new Error(errorData?.error || i18n.t("errors.register_event"));
+    }
+
+    return await response.json();
+  } catch (error) {
+    throw error;
+  }
 };
 
 export const unregisterFromEvent = async (eventUuid: string): Promise<void> => {
-  const headers = await createHeaders(true, false);
-  const response = await fetch(
-    `${EFFECTIVE_API_URL}/events/${eventUuid}/unregister`,
-    {
-      method: "POST",
-      headers,
+  try {
+    const headers = await createAuthHeaders(true);
+
+    // Get the current user ID
+    const currentUser = await getCurrentUser();
+    if (!currentUser || !currentUser.id) {
+      throw new Error(i18n.t("errors.login_required"));
     }
-  );
-  if (!response.ok) throw new Error(i18n.t("errors.unregister_event"));
+
+    const response = await fetch(
+      `${EFFECTIVE_API_URL}/events/${eventUuid}/unregister`,
+      {
+        method: "POST",
+        headers,
+        body: JSON.stringify({
+          userId: currentUser.id,
+        }),
+      }
+    );
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => null);
+      throw new Error(errorData?.error || i18n.t("errors.unregister_event"));
+    }
+
+    return await response.json();
+  } catch (error) {
+    throw error;
+  }
 };
 
 // Alias for backward compatibility
