@@ -27,7 +27,10 @@ export function EventCard({ event, className }: EventCardProps) {
   
   // Navigate to event details when card is pressed
   const handlePress = () => {
-    router.push(`/EventDetails?id=${event.eventId}`);
+    router.push({
+      pathname: "/EventDetails",
+      params: { uuid: event.eventId.toString() }
+    });
   };
 
   // Basic status badge component
