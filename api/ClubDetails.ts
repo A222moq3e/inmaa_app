@@ -1,5 +1,8 @@
 import Constants from 'expo-constants';
-const { API_URL } = Constants.expoConfig.extra;
+const API_URL = Constants.expoConfig?.extra?.API_URL;
+// Use a fallback for development if API_URL is not defined
+const FALLBACK_API_URL = 'http://10.0.2.2:5000';
+const EFFECTIVE_API_URL = API_URL || FALLBACK_API_URL;
 
 import { createAuthHeaders } from './auth';
 import i18n from '../i18n';
@@ -87,7 +90,7 @@ const createHeaders = async (includeAuth = true, includeContentType = true): Pro
 export const getAllClubs = async (queryParams?: Record<string, any>): Promise<Club[]> => {
   const headers = await createHeaders(false, false);
   const queryString = queryParams ? new URLSearchParams(queryParams).toString() : '';
-  const response = await fetch(`${API_URL}/clubs?${queryString}`, {
+  const response = await fetch(`${EFFECTIVE_API_URL}/clubs?${queryString}`, {
     headers
   });
   if (!response.ok) throw new Error(i18n.t('errors.fetch_clubs'));
@@ -99,7 +102,7 @@ export const getAllClubs = async (queryParams?: Record<string, any>): Promise<Cl
 export const getClubByUuid = async (clubUuid: string, queryParams?: Record<string, any>): Promise<Club> => {
   const headers = await createHeaders(false, false);
   const queryString = queryParams ? new URLSearchParams(queryParams).toString() : '';
-  const response = await fetch(`${API_URL}/clubs/${clubUuid}?${queryString}`, {
+  const response = await fetch(`${EFFECTIVE_API_URL}/clubs/${clubUuid}?${queryString}`, {
     headers
   });
   console.log('response', response);
@@ -112,7 +115,7 @@ export const getClubByUuid = async (clubUuid: string, queryParams?: Record<strin
 
 export const createClub = async (clubData: CreateClubData): Promise<Club> => {
   const headers = await createHeaders(true);
-  const response = await fetch(`${API_URL}/clubs`, {
+  const response = await fetch(`${EFFECTIVE_API_URL}/clubs`, {
     method: 'POST',
     headers,
     body: JSON.stringify(clubData),
@@ -125,7 +128,7 @@ export const createClub = async (clubData: CreateClubData): Promise<Club> => {
 
 export const updateClub = async (clubUuid: string, clubData: UpdateClubData): Promise<Club> => {
   const headers = await createHeaders(true);
-  const response = await fetch(`${API_URL}/clubs/${clubUuid}`, {
+  const response = await fetch(`${EFFECTIVE_API_URL}/clubs/${clubUuid}`, {
     method: 'PUT',
     headers,
     body: JSON.stringify(clubData),
@@ -138,7 +141,7 @@ export const updateClub = async (clubUuid: string, clubData: UpdateClubData): Pr
 
 export const deleteClub = async (clubUuid: string): Promise<void> => {
   const headers = await createHeaders(true, false);
-  const response = await fetch(`${API_URL}/clubs/${clubUuid}`, {
+  const response = await fetch(`${EFFECTIVE_API_URL}/clubs/${clubUuid}`, {
     method: 'DELETE',
     headers,
   });
@@ -147,7 +150,7 @@ export const deleteClub = async (clubUuid: string): Promise<void> => {
 
 export const resetClubTerm = async (clubUuid: string): Promise<void> => {
   const headers = await createHeaders(true, false);
-  const response = await fetch(`${API_URL}/clubs/${clubUuid}/term-reset`, {
+  const response = await fetch(`${EFFECTIVE_API_URL}/clubs/${clubUuid}/term-reset`, {
     method: 'PUT',
     headers,
   });
@@ -158,7 +161,7 @@ export const resetClubTerm = async (clubUuid: string): Promise<void> => {
 export const getAllMemberships = async (clubUuid: string, queryParams?: Record<string, any>): Promise<ClubMembership[]> => {
   const headers = await createHeaders(true, false);
   const queryString = queryParams ? new URLSearchParams(queryParams).toString() : '';
-  const response = await fetch(`${API_URL}/clubs/${clubUuid}/memberships?${queryString}`, {
+  const response = await fetch(`${EFFECTIVE_API_URL}/clubs/${clubUuid}/memberships?${queryString}`, {
     headers,
   });
   if (!response.ok) throw new Error(i18n.t('errors.fetch_memberships'));
@@ -170,7 +173,7 @@ export const getAllMemberships = async (clubUuid: string, queryParams?: Record<s
 export const getMembershipByUuid = async (clubUuid: string, membershipUuid: string, queryParams?: Record<string, any>): Promise<ClubMembership> => {
   const headers = await createHeaders(true, false);
   const queryString = queryParams ? new URLSearchParams(queryParams).toString() : '';
-  const response = await fetch(`${API_URL}/clubs/${clubUuid}/memberships/${membershipUuid}?${queryString}`, {
+  const response = await fetch(`${EFFECTIVE_API_URL}/clubs/${clubUuid}/memberships/${membershipUuid}?${queryString}`, {
     headers,
   });
   if (!response.ok) throw new Error(i18n.t('errors.fetch_membership'));
@@ -181,7 +184,7 @@ export const getMembershipByUuid = async (clubUuid: string, membershipUuid: stri
 
 export const createMembership = async (clubUuid: string, membershipData: CreateMembershipData): Promise<ClubMembership> => {
   const headers = await createHeaders(true);
-  const response = await fetch(`${API_URL}/clubs/${clubUuid}/memberships`, {
+  const response = await fetch(`${EFFECTIVE_API_URL}/clubs/${clubUuid}/memberships`, {
     method: 'POST',
     headers,
     body: JSON.stringify(membershipData),
@@ -194,7 +197,7 @@ export const createMembership = async (clubUuid: string, membershipData: CreateM
 
 export const updateMembership = async (clubUuid: string, membershipUuid: string, membershipData: UpdateMembershipData): Promise<ClubMembership> => {
   const headers = await createHeaders(true);
-  const response = await fetch(`${API_URL}/clubs/${clubUuid}/memberships/${membershipUuid}`, {
+  const response = await fetch(`${EFFECTIVE_API_URL}/clubs/${clubUuid}/memberships/${membershipUuid}`, {
     method: 'PUT',
     headers,
     body: JSON.stringify(membershipData),
@@ -207,7 +210,7 @@ export const updateMembership = async (clubUuid: string, membershipUuid: string,
 
 export const joinClub = async (clubUuid: string): Promise<ClubMembership> => {
   const headers = await createHeaders(true, false);
-  const response = await fetch(`${API_URL}/clubs/${clubUuid}/memberships/me`, {
+  const response = await fetch(`${EFFECTIVE_API_URL}/clubs/${clubUuid}/memberships/me`, {
     method: 'POST',
     headers,
   });
@@ -219,7 +222,7 @@ export const joinClub = async (clubUuid: string): Promise<ClubMembership> => {
 
 export const leaveClub = async (clubUuid: string): Promise<void> => {
   const headers = await createHeaders(true, false);
-  const response = await fetch(`${API_URL}/clubs/${clubUuid}/memberships/me`, {
+  const response = await fetch(`${EFFECTIVE_API_URL}/clubs/${clubUuid}/memberships/me`, {
     method: 'DELETE',
     headers,
   });
@@ -228,7 +231,7 @@ export const leaveClub = async (clubUuid: string): Promise<void> => {
 
 export const deleteMembership = async (clubUuid: string, membershipUuid: string): Promise<void> => {
   const headers = await createHeaders(true, false);
-  const response = await fetch(`${API_URL}/clubs/${clubUuid}/memberships/${membershipUuid}`, {
+  const response = await fetch(`${EFFECTIVE_API_URL}/clubs/${clubUuid}/memberships/${membershipUuid}`, {
     method: 'DELETE',
     headers,
   });
