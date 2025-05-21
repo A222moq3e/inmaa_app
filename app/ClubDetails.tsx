@@ -1,36 +1,19 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Image, ScrollView, SafeAreaView, ViewStyle, TextStyle, ImageStyle, I18nManager } from 'react-native';
+import { View, Image, ScrollView, SafeAreaView, ActivityIndicator } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { useTranslation } from 'react-i18next';
-import { useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams, router } from 'expo-router';
 import { getClubByUuid, Club } from '../api/ClubDetails';
-
-// Enable RTL layout
-I18nManager.forceRTL(true);
-
-// Inline style objects that mimic Tailwind/NativeWind classes
-const tw: Record<string, ViewStyle | TextStyle | ImageStyle> = {
-  container: { flex: 1, backgroundColor: '#fff' },
-  header: { alignItems: 'center' as const, padding: 20, borderBottomWidth: 1, borderBottomColor: '#eee' },
-  logo: { width: 100, height: 100, borderRadius: 50, marginBottom: 15 },
-  name: { fontSize: 24, fontWeight: 'bold' as const, marginBottom: 10, textAlign: 'right' as const },
-  badgeContainer: { flexDirection: 'row-reverse' as const, marginTop: 5 },
-  badge: { backgroundColor: '#e0e0e0', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20, marginHorizontal: 5 },
-  statusBadge: { backgroundColor: '#4CAF50' },
-  badgeText: { color: '#fff', fontWeight: '600' as const, fontSize: 12, textAlign: 'right' as const },
-  section: { padding: 20, borderBottomWidth: 1, borderBottomColor: '#eee' },
-  sectionTitle: { fontSize: 18, fontWeight: 'bold' as const, marginBottom: 10, color: '#333', textAlign: 'right' as const },
-  description: { fontSize: 16, lineHeight: 24, color: '#555', textAlign: 'right' as const },
-  detailRow: { flexDirection: 'row-reverse' as const, paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: '#f0f0f0' },
-  detailLabel: { flex: 1, fontSize: 16, color: '#666', textAlign: 'right' as const },
-  detailValue: { flex: 2, fontSize: 16, color: '#333', textAlign: 'right' as const },
-  error: { color: 'red', textAlign: 'center', padding: 20, fontFamily: 'Arial', fontSize: 16 },
-  loading: { textAlign: 'center', padding: 20, fontFamily: 'Arial', fontSize: 16 }
-};
+import { Text } from '~/components/ui/text';
+import { useColorScheme } from '~/lib/useColorScheme';
+import { Card } from '~/components/ui/card';
+import { Button } from '~/components/ui/button';
+import { ArrowLeft } from 'lucide-react-native';
 
 export default function ClubDetailsScreen() {
   console.log('ClubDetailsScreen');
   const { t } = useTranslation();
+  const { isDarkColorScheme } = useColorScheme();
   const params = useLocalSearchParams<{ uuid: string }>();
   const clubUuid = params.uuid || '1'; // Default to '1' if no uuid provided
   
@@ -43,8 +26,6 @@ export default function ClubDetailsScreen() {
       try {
         console.log('fetchClub', clubUuid);
         const data = await getClubByUuid(clubUuid);
-        console.log('data', data);
-        
         setClub(data);
         setError(null);
       } catch (err) {
@@ -73,58 +54,93 @@ export default function ClubDetailsScreen() {
   };
 
   if (loading) {
-    return <Text style={tw.loading as TextStyle}>{t('loading')}</Text>;
+    return (
+      <View className="flex-1 justify-center items-center bg-background">
+        <ActivityIndicator size="large" className="text-primary" />
+        <Text className="mt-4 text-foreground">{t('loading')}</Text>
+      </View>
+    );
   }
 
   if (error) {
-    return <Text style={tw.error as TextStyle}>{error}</Text>;
+    return (
+      <View className="flex-1 justify-center items-center p-6 bg-background">
+        <Text className="text-xl font-bold text-center text-destructive">{error}</Text>
+        <Button 
+          onPress={() => router.back()} 
+          className="mt-6"
+        >
+          {t('club.go_back', 'Go Back')}
+        </Button>
+      </View>
+    );
   }
 
   if (!club) {
-    return <Text style={tw.error as TextStyle}>{t('club.not_found')}</Text>;
+    return (
+      <View className="flex-1 justify-center items-center p-6 bg-background">
+        <Text className="text-xl font-bold text-center text-destructive">{t('club.not_found')}</Text>
+        <Button 
+          onPress={() => router.back()} 
+          className="mt-6"
+        >
+          {t('club.go_back', 'Go Back')}
+        </Button>
+      </View>
+    );
   }
 
   return (
-    <SafeAreaView style={tw.container as ViewStyle}>
-      <StatusBar style="auto" />
+    <SafeAreaView className="flex-1 bg-background">
+      <StatusBar style={isDarkColorScheme ? 'light' : 'dark'} />
       <ScrollView>
-        <View style={tw.header as ViewStyle}>
+        {/* Header Section */}
+        <View className="items-center p-6 border-b border-border bg-primary/5">
           <Image 
             source={{ uri: club.logo }} 
-            style={tw.logo as ImageStyle}
+            className="h-24 w-24 rounded-full mb-4"
             defaultSource={require('../assets/imgs/icon.png')}
           />
-          <Text style={tw.name as TextStyle}>{club.name}</Text>
-          <View style={tw.badgeContainer as ViewStyle}>
-            <View style={tw.badge as ViewStyle}>
-              <Text style={tw.badgeText as TextStyle}>{club.type}</Text>
+          <Text className="text-2xl font-bold mb-2 text-foreground text-center">{club.name}</Text>
+          <View className="flex-row mt-2 flex-wrap justify-center gap-2">
+            <View className="px-3 py-1.5 rounded-full bg-muted">
+              <Text className="text-xs font-medium text-foreground">{club.type}</Text>
             </View>
-            <View style={[tw.badge as ViewStyle, tw.statusBadge as ViewStyle]}>
-              <Text style={tw.badgeText as TextStyle}>{club.status}</Text>
+            <View className="px-3 py-1.5 rounded-full bg-green-600">
+              <Text className="text-xs font-medium text-white">{club.status}</Text>
             </View>
           </View>
         </View>
 
-        <View style={tw.section as ViewStyle}>
-          <Text style={tw.sectionTitle as TextStyle}>{t('club.about')}</Text>
-          <Text style={tw.description as TextStyle}>{club.description}</Text>
-        </View>
+        {/* About Section */}
+        <Card className="m-4 overflow-hidden">
+          <View className="p-4">
+            <Text className="text-lg font-bold mb-2 text-foreground">{t('club.about')}</Text>
+            <Text className="text-base text-foreground/80">{club.description}</Text>
+          </View>
+        </Card>
 
-        <View style={tw.section as ViewStyle}>
-          <Text style={tw.sectionTitle as TextStyle}>{t('club.details')}</Text>
-          <View style={tw.detailRow as ViewStyle}>
-            <Text style={tw.detailLabel as TextStyle}>{t('club.founded')}:</Text>
-            <Text style={tw.detailValue as TextStyle}>{formatDate(club.foundingDate)}</Text>
+        {/* Details Section */}
+        <Card className="m-4 overflow-hidden">
+          <View className="p-4">
+            <Text className="text-lg font-bold mb-4 text-foreground">{t('club.details')}</Text>
+            
+            <View className="flex-row justify-between py-2 border-b border-border">
+              <Text className="text-base font-semibold text-foreground">{t('club.founded')}:</Text>
+              <Text className="text-base text-foreground/80">{formatDate(club.foundingDate)}</Text>
+            </View>
+            
+            <View className="flex-row justify-between py-2 border-b border-border">
+              <Text className="text-base font-semibold text-foreground">{t('club.type_label')}:</Text>
+              <Text className="text-base text-foreground/80">{club.type}</Text>
+            </View>
+            
+            <View className="flex-row justify-between py-2">
+              <Text className="text-base font-semibold text-foreground">{t('club.status_label')}:</Text>
+              <Text className="text-base text-foreground/80">{club.status}</Text>
+            </View>
           </View>
-          <View style={tw.detailRow as ViewStyle}>
-            <Text style={tw.detailLabel as TextStyle}>{t('club.type_label')}:</Text>
-            <Text style={tw.detailValue as TextStyle}>{club.type}</Text>
-          </View>
-          <View style={tw.detailRow as ViewStyle}>
-            <Text style={tw.detailLabel as TextStyle}>{t('club.status_label')}:</Text>
-            <Text style={tw.detailValue as TextStyle}>{club.status}</Text>
-          </View>
-        </View>
+        </Card>
       </ScrollView>
     </SafeAreaView>
   );

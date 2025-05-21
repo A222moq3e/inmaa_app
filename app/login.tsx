@@ -1,20 +1,21 @@
 import React, { useState } from 'react';
-import { View, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
+import { View, TextInput, TouchableOpacity, ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import { Text } from '~/components/ui/text';
 import { useAuth } from '~/context/AuthContext';
 import { router } from 'expo-router';
 import { Button } from '~/components/ui/button';
-import i18n from '~/i18n';
+import { useTranslation } from 'react-i18next';
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
   const [nationalId, setNationalId] = useState('');
   const [error, setError] = useState<string | null>(null);
   const { tempLogin, loading } = useAuth();
+  const { t } = useTranslation();
 
   const handleLogin = async () => {
     if (!email || !nationalId) {
-      setError(i18n.t('errors.all_fields_required'));
+      setError(t('errors.all_fields_required'));
       return;
     }
 
@@ -25,7 +26,7 @@ export default function LoginScreen() {
       router.replace('/');
     } catch (err) {
       console.error('Login error:', err);
-      setError(err instanceof Error ? err.message : i18n.t('errors.login_failed'));
+      setError(err instanceof Error ? err.message : t('errors.login_failed'));
     }
   };
 
@@ -41,9 +42,9 @@ export default function LoginScreen() {
       <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
         <View className="flex-1 p-6 justify-center bg-background">
           <View className="mb-8 items-center">
-            <Text className="text-3xl font-bold mb-2">Welcome Back</Text>
+            <Text className="text-3xl font-bold mb-2">{t('auth.welcome_back', 'Welcome Back')}</Text>
             <Text className="text-muted-foreground text-center">
-              Login to access your account
+              {t('auth.login_to_access', 'Login to access your account')}
             </Text>
           </View>
 
@@ -55,10 +56,10 @@ export default function LoginScreen() {
 
           <View className="space-y-4 mb-6">
             <View>
-              <Text className="text-sm font-medium mb-1">Email</Text>
+              <Text className="text-sm font-medium mb-1">{t('auth.email', 'Email')}</Text>
               <TextInput
                 className="p-3 border border-border bg-input rounded-md"
-                placeholder="Enter your email"
+                placeholder={t('auth.enter_email', 'Enter your email')}
                 keyboardType="email-address"
                 autoCapitalize="none"
                 value={email}
@@ -67,10 +68,10 @@ export default function LoginScreen() {
             </View>
 
             <View>
-              <Text className="text-sm font-medium mb-1">National ID</Text>
+              <Text className="text-sm font-medium mb-1">{t('auth.national_id', 'National ID')}</Text>
               <TextInput
                 className="p-3 border border-border bg-input rounded-md"
-                placeholder="Enter your national ID"
+                placeholder={t('auth.enter_national_id', 'Enter your national ID')}
                 value={nationalId}
                 onChangeText={setNationalId}
                 secureTextEntry
@@ -86,14 +87,16 @@ export default function LoginScreen() {
             {loading ? (
               <ActivityIndicator size="small" color="#ffffff" />
             ) : (
-              'Login'
+              <Text>{t('auth.login', 'Login')}</Text>
             )}
           </Button>
 
           <View className="flex-row justify-center mt-4">
-            <Text className="text-muted-foreground">Don't have an account? </Text>
+            {/* TODO: Fix Text in arabic 
+            TODO: add a link to reset password */}
+            <Text className="text-muted-foreground">{t('auth.dont_have_account', "Don't have an account?")} </Text>
             <TouchableOpacity onPress={navigateToRegister}>
-              <Text className="text-primary font-semibold">Register</Text>
+              <Text className="text-primary font-semibold">{t('auth.register', 'Register')}</Text>
             </TouchableOpacity>
           </View>
         </View>

@@ -4,7 +4,45 @@
     "loading": "Loading...",
     "tabs": {
       "home": "Home",
-      "profile": "Profile"
+      "profile": "Profile",
+      "settings": "Settings"
+    },
+    "auth": {
+      "welcome_back": "Welcome Back",
+      "login_to_access": "Login to access your account",
+      "login": "Login",
+      "register": "Register",
+      "create_account": "Create Account",
+      "register_to_get_started": "Register to get started",
+      "email": "Email",
+      "enter_email": "Enter your email",
+      "national_id": "National ID",
+      "enter_national_id": "Enter your national ID",
+      "first_name": "First Name",
+      "enter_first_name": "Enter your first name",
+      "last_name": "Last Name",
+      "enter_last_name": "Enter your last name",
+      "display_name": "Display Name (optional)",
+      "display_name_description": "How others will see you",
+      "phone_number": "Phone Number",
+      "enter_phone_number": "Enter your phone number",
+      "already_have_account": "Already have an account?",
+      "dont_have_account": "Don't have an account?"
+    },
+    "settings": {
+      "title": "Settings",
+      "darkMode": "Dark Mode",
+      "darkModeDescription": "Switch between light and dark themes",
+      "language": "Language",
+      "languageDescription": "Change the application language"
+    },
+    "profile": {
+      "logout": "Logout",
+      "logoutConfirmTitle": "Logout",
+      "logoutConfirmMessage": "Are you sure you want to logout?",
+      "cancel": "Cancel",
+      "registeredEvents": "Registered Events",
+      "noEvents": "You haven't registered for any events yet."
     },
     "club": {
       "name": "Programming Club",
@@ -16,7 +54,8 @@
       "founded": "Founded",
       "type_label": "Type",
       "status_label": "Status",
-      "not_found": "Club not found"
+      "not_found": "Club not found",
+      "go_back": "Go Back"
     },
     "errors": {
       "fetch_clubs": "Failed to fetch clubs",
