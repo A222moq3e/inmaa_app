@@ -2,6 +2,10 @@
     "welcome": "Welcome",
     "login": "Login",
     "loading": "Loading...",
+    "tabs": {
+      "home": "Home",
+      "profile": "Profile"
+    },
     "club": {
       "name": "Programming Club",
       "description": "A club for programming enthusiasts",
