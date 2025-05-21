@@ -10,7 +10,7 @@
     "ios": "expo start -c --ios",
     "web": "expo start -c --web",
     "clean": "rm -rf .expo node_modules",
-    "postinstall": "npx tailwindcss -i ./global.css -o ./node_modules/.cache/nativewind/global.css"
+    "postinstall": "pnpm exec tailwindcss -i ./global.css -o ./node_modules/.cache/nativewind/global.css"
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "^2.1.2",
@@ -49,6 +49,7 @@
   "devDependencies": {
     "@babel/core": "^7.26.0",
     "@types/react": "~19.0.14",
+    "dotenv": "^16.5.0",
     "typescript": "^5.8.3"
   },
   "private": true,

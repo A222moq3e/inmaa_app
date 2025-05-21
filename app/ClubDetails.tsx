@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, Image, ScrollView, SafeAreaView, ViewStyle, TextStyle, ImageStyle, I18nManager } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { useTranslation } from 'react-i18next';
+import { useLocalSearchParams } from 'expo-router';
 import { getClubByUuid, Club } from '../api/ClubDetails';
 
 // Enable RTL layout
@@ -27,12 +28,11 @@ const tw: Record<string, ViewStyle | TextStyle | ImageStyle> = {
   loading: { textAlign: 'center', padding: 20, fontFamily: 'Arial', fontSize: 16 }
 };
 
-interface ClubDetailsProps {
-  clubUuid: string;
-}
-
-const ClubDetails: React.FC<ClubDetailsProps> = ({ clubUuid }) => {
+export default function ClubDetailsScreen() {
   const { t } = useTranslation();
+  const params = useLocalSearchParams<{ uuid: string }>();
+  const clubUuid = params.uuid || '1'; // Default to '1' if no uuid provided
+  
   const [club, setClub] = useState<Club | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -127,5 +127,3 @@ const ClubDetails: React.FC<ClubDetailsProps> = ({ clubUuid }) => {
     </SafeAreaView>
   );
 };
-
-export default ClubDetails;
