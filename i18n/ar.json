@@ -7,6 +7,28 @@
       "profile": "الملف الشخصي",
       "settings": "الإعدادات"
     },
+    "auth": {
+      "welcome_back": "مرحبًا بعودتك",
+      "login_to_access": "سجل الدخول للوصول إلى حسابك",
+      "login": "تسجيل الدخول",
+      "register": "إنشاء حساب",
+      "create_account": "إنشاء حساب جديد",
+      "register_to_get_started": "سجل للبدء",
+      "email": "البريد الإلكتروني",
+      "enter_email": "أدخل بريدك الإلكتروني",
+      "national_id": "الهوية الوطنية",
+      "enter_national_id": "أدخل رقم الهوية الوطنية",
+      "first_name": "الاسم الأول",
+      "enter_first_name": "أدخل اسمك الأول",
+      "last_name": "اسم العائلة",
+      "enter_last_name": "أدخل اسم عائلتك",
+      "display_name": "الاسم المعروض (اختياري)",
+      "display_name_description": "كيف سيراك الآخرون",
+      "phone_number": "رقم الهاتف",
+      "enter_phone_number": "أدخل رقم هاتفك",
+      "already_have_account": "هل لديك حساب بالفعل؟",
+      "dont_have_account": "ليس لديك حساب؟"
+    },
     "settings": {
       "title": "الإعدادات",
       "darkMode": "الوضع الداكن",
@@ -32,7 +54,8 @@
       "founded": "تأسس في",
       "type_label": "النوع",
       "status_label": "الحالة",
-      "not_found": "لم يتم العثور على النادي"
+      "not_found": "لم يتم العثور على النادي",
+      "go_back": "العودة"
     },
     "errors": {
       "fetch_clubs": "فشل في جلب الأندية",
