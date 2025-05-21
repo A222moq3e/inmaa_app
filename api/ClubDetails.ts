@@ -1,7 +1,7 @@
 import Constants from 'expo-constants';
 const API_URL = Constants.expoConfig?.extra?.API_URL;
 // Use a fallback for development if API_URL is not defined
-const FALLBACK_API_URL = 'http://10.0.2.2:5000';
+const FALLBACK_API_URL = 'http://10.0.2.2:5006';
 const EFFECTIVE_API_URL = API_URL || FALLBACK_API_URL;
 
 import { createAuthHeaders } from './auth';
@@ -100,8 +100,10 @@ export const getAllClubs = async (queryParams?: Record<string, any>): Promise<Cl
 };
 
 export const getClubByUuid = async (clubUuid: string, queryParams?: Record<string, any>): Promise<Club> => {
+  console.log('EFFECTIVE_API_URL', EFFECTIVE_API_URL);
   const headers = await createHeaders(false, false);
   const queryString = queryParams ? new URLSearchParams(queryParams).toString() : '';
+  console.log('getClubByUuid', `${EFFECTIVE_API_URL}/clubs/${clubUuid}?${queryString}`);
   const response = await fetch(`${EFFECTIVE_API_URL}/clubs/${clubUuid}?${queryString}`, {
     headers
   });

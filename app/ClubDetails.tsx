@@ -29,6 +29,7 @@ const tw: Record<string, ViewStyle | TextStyle | ImageStyle> = {
 };
 
 export default function ClubDetailsScreen() {
+  console.log('ClubDetailsScreen');
   const { t } = useTranslation();
   const params = useLocalSearchParams<{ uuid: string }>();
   const clubUuid = params.uuid || '1'; // Default to '1' if no uuid provided
@@ -40,6 +41,7 @@ export default function ClubDetailsScreen() {
   useEffect(() => {
     const fetchClub = async () => {
       try {
+        console.log('fetchClub', clubUuid);
         const data = await getClubByUuid(clubUuid);
         console.log('data', data);
         
