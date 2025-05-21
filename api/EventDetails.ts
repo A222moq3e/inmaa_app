@@ -1,10 +1,9 @@
-import Constants from "expo-constants";
-const API_URL = Constants.expoConfig?.extra?.API_URL;
+const API_URL = process.env.EXPO_PUBLIC_API_URL;
 // Use a fallback for development if API_URL is not defined
 const FALLBACK_API_URL = "http://10.0.2.2:5000";
 const EFFECTIVE_API_URL = API_URL || FALLBACK_API_URL;
 
-import { createAuthHeaders } from "./auth";
+import { createAuthHeaders, getCurrentUser } from "./auth";
 import i18n from "../i18n";
 
 // Types
@@ -14,6 +13,7 @@ export interface Event {
   name: string;
   description: string;
   seatsAvailable: number;
+  seatsRemaining?: number;
   clubId: string;
   registrationStart: string;
   registrationEnd: string;
@@ -27,6 +27,15 @@ export interface Event {
   createdBy?: number;
   updatedBy?: number;
   image?: string;
+  poster?: string;
+  category?: string;
+  location?: string;
+  status?: string;
+  club?: {
+    name: string;
+    uuid: string;
+    logo?: string;
+  };
 }
 
 export interface RegisteredUser {
@@ -74,7 +83,7 @@ export interface UpdateEventData {
   eventEnd?: string;
 }
 
-// Helper to create headers with language support
+// Helper to create headers with language support and user ID
 const createHeaders = async (
   includeAuth = true,
   includeContentType = true
@@ -85,6 +94,15 @@ const createHeaders = async (
 
   if (includeAuth) {
     const authHeaders = await createAuthHeaders(includeContentType);
+
+    // Get current user to set x-user-id header
+    const user = await getCurrentUser();
+    if (user && (user.id || user.uuid)) {
+      const userId = user.id || user.uuid;
+      // Ensure userId is a string before setting the header
+      headers["x-user-id"] = String(userId);
+    }
+
     return { ...headers, ...authHeaders };
   }
 
@@ -111,7 +129,6 @@ export const getAllEvents = async (
   const result: ApiResponse<Event[]> = await response.json();
   return result.data;
 };
-
 
 export const getEventById = async (
   eventId: number,
@@ -196,26 +213,29 @@ export const deleteEvent = async (eventUuid: string): Promise<void> => {
 };
 
 export const registerForEvent = async (eventUuid: string): Promise<void> => {
-  const headers = await createHeaders(true, false);
+  const headers = await createHeaders(true, true);
+
   const response = await fetch(
     `${EFFECTIVE_API_URL}/events/${eventUuid}/register`,
     {
       method: "POST",
       headers,
+      // No body needed - user is identified by the auth token and x-user-id header
     }
   );
   if (!response.ok) throw new Error(i18n.t("errors.register_event"));
 };
 
 export const unregisterFromEvent = async (eventUuid: string): Promise<void> => {
-  const headers = await createHeaders(true, false);
+  const headers = await createHeaders(true, true);
+
   const response = await fetch(
     `${EFFECTIVE_API_URL}/events/${eventUuid}/unregister`,
     {
       method: "POST",
       headers,
+      // No body needed - user is identified by the auth token and x-user-id header
     }
   );
   if (!response.ok) throw new Error(i18n.t("errors.unregister_event"));
 };
-

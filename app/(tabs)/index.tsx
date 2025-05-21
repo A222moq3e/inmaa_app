@@ -39,7 +39,7 @@ export default function HomeScreen() {
     // Navigating to the club details page with a sample club UUID
     router.push({
       pathname: "/ClubDetails",
-      params: { uuid: "2819d4d9-1770-4685-bf69-18c683cfd10c" },
+      params: { uuid: "3cfacfee-923e-48a0-a17e-b099cc95df6c" },
     });
   }
 
@@ -47,7 +47,7 @@ export default function HomeScreen() {
     // Navigating to the event details page with a sample event UUID
     router.push({
       pathname: "/EventDetails",
-      params: { uuid: "a4a93a4f-f63d-4b3f-85f6-d7b746623b11" },
+      params: { uuid: "d38d0a65-9db9-43df-b11d-0948cd4eda33" },
     });
   }
 
