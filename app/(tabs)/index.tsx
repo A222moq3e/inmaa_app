@@ -31,7 +31,7 @@ export default function HomeScreen() {
     // Navigating to the club details page with a sample club UUID
     router.push({
       pathname: '/ClubDetails',
-      params: { uuid: '1' }
+      params: { uuid: '2819d4d9-1770-4685-bf69-18c683cfd10c' }
     });
   }
 
