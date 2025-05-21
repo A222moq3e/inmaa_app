@@ -137,6 +137,7 @@ export const register = async (userData: RegisterData): Promise<User> => {
 export const logout = async (): Promise<void> => {
   await AsyncStorage.removeItem(AUTH_TOKEN_KEY);
   await AsyncStorage.removeItem(USER_DATA_KEY);
+  await AsyncStorage.removeItem('language-storage'); // Clear language preferences on logout
   await clearAllProfileCaches(); // Clear all profile caches on logout
 };
 
