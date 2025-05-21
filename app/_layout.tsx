@@ -4,7 +4,7 @@ import { DarkTheme, DefaultTheme, Theme, ThemeProvider } from '@react-navigation
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import * as React from 'react';
-import { Platform } from 'react-native';
+import { Platform, I18nManager } from 'react-native';
 import { NAV_THEME } from '~/lib/constants';
 import { useColorScheme } from '~/lib/useColorScheme';
 import { PortalHost } from '@rn-primitives/portal';
@@ -14,6 +14,7 @@ import { I18nextProvider } from 'react-i18next';
 import i18n from '~/i18n';
 import { AuthProvider } from '~/context/AuthContext';
 import { AuthGuard } from '~/components/AuthGuard';
+import { useLanguageStore } from '~/lib/store';
 
 const LIGHT_THEME: Theme = {
   ...DefaultTheme,
@@ -33,6 +34,7 @@ export default function RootLayout() {
   const hasMounted = React.useRef(false);
   const { colorScheme, isDarkColorScheme } = useColorScheme();
   const [isColorSchemeLoaded, setIsColorSchemeLoaded] = React.useState(false);
+  const { language } = useLanguageStore();
 
   useIsomorphicLayoutEffect(() => {
     if (hasMounted.current) {
@@ -44,6 +46,18 @@ export default function RootLayout() {
       document.documentElement.classList.add('bg-background');
     }
     setAndroidNavigationBar(colorScheme);
+    
+    // Set RTL based on language
+    const isRTL = language === 'ar';
+    if (I18nManager.isRTL !== isRTL) {
+      I18nManager.forceRTL(isRTL);
+    }
+    
+    // Apply language
+    if (i18n.language !== language) {
+      i18n.changeLanguage(language);
+    }
+    
     setIsColorSchemeLoaded(true);
     hasMounted.current = true;
   }, []);
