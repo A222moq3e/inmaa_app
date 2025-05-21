@@ -32,9 +32,15 @@
       "join_club": "Failed to join club",
       "leave_club": "Failed to leave club",
       "delete_membership": "Failed to delete membership",
-      "login_failed": "Login failed",
+      "login_failed": "Login failed. Please check your credentials and try again.",
+      "registration_failed": "Registration failed. Please try again.",
       "user_data_error": "Error parsing user data",
       "no_clubs": "No clubs found",
-      "generic": "An error occurred during the operation"
+      "generic": "An error occurred during the operation",
+      "all_fields_required": "All fields are required",
+      "invalid_email": "Please enter a valid email address",
+      "user_not_found": "User not found",
+      "unauthorized": "You're not authorized to access this resource",
+      "server_error": "A server error occurred. Please try again later."
     }
   }

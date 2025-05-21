@@ -12,6 +12,8 @@ import { ThemeToggle } from '~/components/ThemeToggle';
 import { setAndroidNavigationBar } from '~/lib/android-navigation-bar';
 import { I18nextProvider } from 'react-i18next';
 import i18n from '~/i18n';
+import { AuthProvider } from '~/context/AuthContext';
+import { AuthGuard } from '~/components/AuthGuard';
 
 const LIGHT_THEME: Theme = {
   ...DefaultTheme,
@@ -52,25 +54,43 @@ export default function RootLayout() {
 
   return (
     <I18nextProvider i18n={i18n}>
-      <ThemeProvider value={isDarkColorScheme ? DARK_THEME : LIGHT_THEME}>
-        <StatusBar style={isDarkColorScheme ? 'light' : 'dark'} />
-        <Stack>
-          <Stack.Screen
-            name="(tabs)"
-            options={{
-              headerShown: false,
-            }}
-          />
-          <Stack.Screen
-            name="ClubDetails"
-            options={{
-              title: 'Club Details',
-              headerRight: () => <ThemeToggle />,
-            }}
-          />
-        </Stack>
-        <PortalHost />
-      </ThemeProvider>
+      <AuthProvider>
+        <ThemeProvider value={isDarkColorScheme ? DARK_THEME : LIGHT_THEME}>
+          <StatusBar style={isDarkColorScheme ? 'light' : 'dark'} />
+          <AuthGuard>
+            <Stack>
+              <Stack.Screen
+                name="(tabs)"
+                options={{
+                  headerShown: false,
+                }}
+              />
+              <Stack.Screen
+                name="ClubDetails"
+                options={{
+                  title: 'Club Details',
+                  headerRight: () => <ThemeToggle />,
+                }}
+              />
+              <Stack.Screen
+                name="login"
+                options={{
+                  title: 'Login',
+                  headerShown: false,
+                }}
+              />
+              <Stack.Screen
+                name="register"
+                options={{
+                  title: 'Register',
+                  headerShown: false,
+                }}
+              />
+            </Stack>
+            <PortalHost />
+          </AuthGuard>
+        </ThemeProvider>
+      </AuthProvider>
     </I18nextProvider>
   );
 }

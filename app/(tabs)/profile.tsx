@@ -1,21 +1,30 @@
 import React, { useState, useEffect } from 'react';
-import { View, ScrollView, RefreshControl, ActivityIndicator } from 'react-native';
+import { View, ScrollView, RefreshControl, ActivityIndicator, Alert } from 'react-native';
 import { Text } from '~/components/ui/text';
 import { Avatar, AvatarImage, AvatarFallback } from '~/components/ui/avatar';
 import { EventCard } from '~/components/ui/event-card';
 import { getUserProfile, UserProfile, EventRegistration } from '~/api/profile';
+import { useAuth } from '~/context/AuthContext';
+import { Button } from '~/components/ui/button';
 
 export default function ProfileScreen() {
+  const { user, logout } = useAuth();
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [refreshing, setRefreshing] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  const loadUserProfile = async () => {
+  const loadUserProfile = async (forceRefresh = false) => {
     try {
-      // In a real app, you'd get the userId from auth state
-      const userId = 6;
-      const profile = await getUserProfile(userId);
+      if (!user || (!user.id && !user.uuid)) {
+        setError('User ID not found in auth state');
+        setIsLoading(false);
+        return;
+      }
+      
+      // Use either id or uuid depending on what's available
+      const userId = user.id || user.uuid || '';
+      const profile = await getUserProfile(userId, undefined, undefined, forceRefresh);
       setUserProfile(profile);
       setError(null);
     } catch (err) {
@@ -30,12 +39,28 @@ export default function ProfileScreen() {
   // Initial profile load
   useEffect(() => {
     loadUserProfile();
-  }, []);
+  }, [user]);
 
   // Pull to refresh handler
   const onRefresh = () => {
     setRefreshing(true);
-    loadUserProfile();
+    loadUserProfile(true); // Force refresh from API
+  };
+
+  // Handle logout
+  const handleLogout = () => {
+    Alert.alert(
+      'Logout',
+      'Are you sure you want to logout?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { 
+          text: 'Logout', 
+          style: 'destructive',
+          onPress: () => logout() 
+        },
+      ]
+    );
   };
 
   // Format event registration data for the event card component
@@ -76,10 +101,12 @@ export default function ProfileScreen() {
     >
       {/* Profile Header */}
       <View className="p-6 bg-primary/5 border-b border-border">
-        <View className="flex-row items-center space-x-4 mb-4">
-          <Avatar className="h-20 w-20">
+        <View className="flex-row items-center space-x-6 mb-4">
+          <Avatar className="h-20 w-20" alt={`${userProfile?.firstName || ''} ${userProfile?.lastName || ''} profile picture`}>
             {userProfile?.profileImage ? (
-              <AvatarImage source={{ uri: userProfile.profileImage }} />
+              <AvatarImage 
+                source={{ uri: userProfile.profileImage }} 
+              />
             ) : (
               <AvatarFallback>
                 <Text className="text-2xl font-bold">
@@ -89,14 +116,19 @@ export default function ProfileScreen() {
               </AvatarFallback>
             )}
           </Avatar>
-          <View className="flex-1">
+          <View className="flex-1 ml-2">
             <Text className="text-2xl font-bold">{userProfile?.displayName}</Text>
             <Text className="text-muted-foreground">{userProfile?.email}</Text>
-            <Text className="text-xs mt-1 capitalize">
-              {userProfile?.globalRole || 'Student'}
-            </Text>
           </View>
         </View>
+        
+        {/* Logout button */}
+        <Button 
+          onPress={handleLogout} 
+          className="mt-2 bg-destructive"
+        >
+          Logout
+        </Button>
       </View>
 
       {/* User Information */}
