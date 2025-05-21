@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import ClubDetails from './ClubDetails';
 import '../i18n'; // Import i18n configuration
 import { getAllClubs } from '../api/ClubDetails';
+import "@/global.css" // Import Tailwind styles
 
 // Enable RTL layout
 I18nManager.allowRTL(true);

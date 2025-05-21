@@ -1,4 +1,4 @@
-import 'dotenv/config';
+import "dotenv/config";
 
 export default {
   expo: {
@@ -12,25 +12,26 @@ export default {
     splash: {
       image: "./assets/splash-icon.png",
       resizeMode: "contain",
-      backgroundColor: "#ffffff"
+      backgroundColor: "#ffffff",
     },
     ios: {
-      supportsTablet: true
+      supportsTablet: true,
     },
     android: {
       adaptiveIcon: {
         foregroundImage: "./assets/adaptive-icon.png",
-        backgroundColor: "#ffffff"
+        backgroundColor: "#ffffff",
       },
       edgeToEdgeEnabled: true,
-      package: "com.anonymous.alinma_app"
+      package: "com.anonymous.alinma_app",
     },
     web: {
-      favicon: "./assets/favicon.png"
+      bundler: "metro",
+      favicon: "./assets/favicon.png",
     },
     extra: {
       API_URL: process.env.API_URL,
       // You can add more env variables here as needed
-    }
-  }
+    },
+  },
 };
