@@ -10,11 +10,32 @@ export interface LoginCredentials {
   password: string;
 }
 
-export interface User {
-  uuid: string;
+export interface TempLoginCredentials {
   email: string;
-  name: string;
-  role: string;
+  nationalId: string;
+}
+
+export interface RegisterData {
+  displayName: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phoneNumber: string;
+}
+
+export interface User {
+  id?: number;
+  uuid?: string;
+  email: string;
+  name?: string;
+  role?: string;
+  displayName?: string;
+  firstName?: string;
+  lastName?: string;
+  profileImage?: string;
+  nationalId?: number;
+  phoneNumber?: string;
+  providers?: string[];
 }
 
 export interface LoginResponse {
@@ -52,6 +73,52 @@ export const login = async (credentials: LoginCredentials): Promise<User> => {
 
   if (!response.ok) {
     throw new Error(i18n.t('errors.login_failed'));
+  }
+
+  const responseData: LoginResponse = await response.json();
+  const { token, user } = responseData.data;
+  
+  // Store token and user data
+  await AsyncStorage.setItem(AUTH_TOKEN_KEY, token);
+  await AsyncStorage.setItem(USER_DATA_KEY, JSON.stringify(user));
+  
+  return user;
+};
+
+export const tempLogin = async (credentials: TempLoginCredentials): Promise<User> => {
+  const headers = createHeaders();
+  const response = await fetch(`${API_URL}/login/tmp`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify(credentials),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.error || i18n.t('errors.login_failed'));
+  }
+
+  const responseData: LoginResponse = await response.json();
+  const { token, user } = responseData.data;
+  
+  // Store token and user data
+  await AsyncStorage.setItem(AUTH_TOKEN_KEY, token);
+  await AsyncStorage.setItem(USER_DATA_KEY, JSON.stringify(user));
+  
+  return user;
+};
+
+export const register = async (userData: RegisterData): Promise<User> => {
+  const headers = createHeaders();
+  const response = await fetch(`${API_URL}/register/tmp`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify(userData),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.error || i18n.t('errors.registration_failed'));
   }
 
   const responseData: LoginResponse = await response.json();

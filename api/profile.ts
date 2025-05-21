@@ -53,6 +53,11 @@ export const getUserProfile = async (
   try {
     const requestUrl = `${EFFECTIVE_API_URL}/profile?fields=${fields}&include=${includeRelations}`;
     
+    // Handle case where userId might be undefined
+    if (!userId) {
+      throw new Error('User ID is required to fetch profile');
+    }
+    
     const response = await fetch(requestUrl, {
       method: 'GET',
       headers: createProfileHeaders(userId)
