@@ -6,9 +6,11 @@ import { EventCard } from '~/components/ui/event-card';
 import { getUserProfile, UserProfile, EventRegistration } from '~/api/profile';
 import { useAuth } from '~/context/AuthContext';
 import { Button } from '~/components/ui/button';
+import { useTranslation } from 'react-i18next';
 
 export default function ProfileScreen() {
   const { user, logout } = useAuth();
+  const { t } = useTranslation();
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [refreshing, setRefreshing] = useState<boolean>(false);
@@ -50,12 +52,12 @@ export default function ProfileScreen() {
   // Handle logout
   const handleLogout = () => {
     Alert.alert(
-      'Logout',
-      'Are you sure you want to logout?',
+      t('profile.logoutConfirmTitle', 'Logout'),
+      t('profile.logoutConfirmMessage', 'Are you sure you want to logout?'),
       [
-        { text: 'Cancel', style: 'cancel' },
+        { text: t('profile.cancel', 'Cancel'), style: 'cancel' },
         { 
-          text: 'Logout', 
+          text: t('profile.logout', 'Logout'), 
           style: 'destructive',
           onPress: () => logout() 
         },
@@ -127,7 +129,7 @@ export default function ProfileScreen() {
           onPress={handleLogout} 
           className="mt-2 bg-destructive"
         >
-          Logout
+          {t('profile.logout', 'Logout')}
         </Button>
       </View>
 
@@ -136,7 +138,7 @@ export default function ProfileScreen() {
 
         {/* Registered Events */}
         <View className="mb-6">
-          <Text className="text-xl font-bold mb-4">Registered Events</Text>
+          <Text className="text-xl font-bold mb-4">{t('profile.registeredEvents', 'Registered Events')}</Text>
           {userProfile?.eventRegistration && userProfile.eventRegistration.length > 0 ? (
             formatEventData(userProfile.eventRegistration).map(event => (
               <EventCard key={event.id} event={event} />
@@ -144,7 +146,7 @@ export default function ProfileScreen() {
           ) : (
             <View className="py-8 items-center">
               <Text className="text-muted-foreground text-center">
-                You haven't registered for any events yet.
+                {t('profile.noEvents', "You haven't registered for any events yet.")}
               </Text>
             </View>
           )}

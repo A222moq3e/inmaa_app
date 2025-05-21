@@ -14,6 +14,14 @@
       "language": "Language",
       "languageDescription": "Change the application language"
     },
+    "profile": {
+      "logout": "Logout",
+      "logoutConfirmTitle": "Logout",
+      "logoutConfirmMessage": "Are you sure you want to logout?",
+      "cancel": "Cancel",
+      "registeredEvents": "Registered Events",
+      "noEvents": "You haven't registered for any events yet."
+    },
     "club": {
       "name": "Programming Club",
       "description": "A club for programming enthusiasts",

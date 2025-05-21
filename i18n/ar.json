@@ -14,6 +14,14 @@
       "language": "اللغة",
       "languageDescription": "تغيير لغة التطبيق"
     },
+    "profile": {
+      "logout": "تسجيل الخروج",
+      "logoutConfirmTitle": "تسجيل الخروج",
+      "logoutConfirmMessage": "هل أنت متأكد أنك تريد تسجيل الخروج؟",
+      "cancel": "إلغاء",
+      "registeredEvents": "الفعاليات المسجلة",
+      "noEvents": "لم تقم بالتسجيل في أي فعاليات بعد."
+    },
     "club": {
       "name": "نادي البرمجة",
       "description": "نادٍ لمحبي البرمجة",
