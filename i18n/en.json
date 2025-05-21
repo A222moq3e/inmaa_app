@@ -4,7 +4,15 @@
     "loading": "Loading...",
     "tabs": {
       "home": "Home",
-      "profile": "Profile"
+      "profile": "Profile",
+      "settings": "Settings"
+    },
+    "settings": {
+      "title": "Settings",
+      "darkMode": "Dark Mode",
+      "darkModeDescription": "Switch between light and dark themes",
+      "language": "Language",
+      "languageDescription": "Change the application language"
     },
     "club": {
       "name": "Programming Club",

@@ -4,7 +4,15 @@
     "loading": "جاري التحميل...",
     "tabs": {
       "home": "الرئيسية",
-      "profile": "الملف الشخصي"
+      "profile": "الملف الشخصي",
+      "settings": "الإعدادات"
+    },
+    "settings": {
+      "title": "الإعدادات",
+      "darkMode": "الوضع الداكن",
+      "darkModeDescription": "التبديل بين السمات الفاتحة والداكنة",
+      "language": "اللغة",
+      "languageDescription": "تغيير لغة التطبيق"
     },
     "club": {
       "name": "نادي البرمجة",

@@ -5,6 +5,7 @@ import { NAV_THEME } from '~/lib/constants';
 import { useTranslation } from 'react-i18next';
 import { Home, User } from 'lucide-react-native';
 import { View } from 'react-native';
+import { Settings } from '~/lib/icons/Settings';
 
 export default function TabLayout() {
   const { isDarkColorScheme } = useColorScheme();
@@ -33,6 +34,15 @@ export default function TabLayout() {
           title: t('tabs.profile', 'Profile'),
           tabBarIcon: ({ color }) => (
             <User size={24} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="settings"
+        options={{
+          title: t('tabs.settings', 'Settings'),
+          tabBarIcon: ({ color }) => (
+            <Settings size={24} color={color} />
           ),
         }}
       />
