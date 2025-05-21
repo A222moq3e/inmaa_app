@@ -102,7 +102,7 @@ export default function ProfileScreen() {
       {/* Profile Header */}
       <View className="p-6 bg-primary/5 border-b border-border">
         <View className="flex-row items-center space-x-6 mb-4">
-          <Avatar className="h-20 w-20">
+          <Avatar className="h-20 w-20" alt={`${userProfile?.firstName || ''} ${userProfile?.lastName || ''} profile picture`}>
             {userProfile?.profileImage ? (
               <AvatarImage 
                 source={{ uri: userProfile.profileImage }} 
