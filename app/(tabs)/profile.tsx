@@ -102,26 +102,23 @@ export default function ProfileScreen() {
       {/* Profile Header */}
       <View className="p-6 bg-primary/5 border-b border-border">
         <View className="flex-row items-center space-x-4 mb-4">
-          <View className="h-20 w-20 rounded-full overflow-hidden bg-muted flex items-center justify-center">
+          <Avatar className="h-20 w-20">
             {userProfile?.profileImage ? (
               <AvatarImage 
                 source={{ uri: userProfile.profileImage }} 
               />
             ) : (
-              <View className="flex items-center justify-center h-full w-full bg-muted">
+              <AvatarFallback>
                 <Text className="text-2xl font-bold">
                   {userProfile?.firstName?.charAt(0) || ''}
                   {userProfile?.lastName?.charAt(0) || ''}
                 </Text>
-              </View>
+              </AvatarFallback>
             )}
-          </View>
+          </Avatar>
           <View className="flex-1">
             <Text className="text-2xl font-bold">{userProfile?.displayName}</Text>
             <Text className="text-muted-foreground">{userProfile?.email}</Text>
-            <Text className="text-xs mt-1 capitalize">
-              {userProfile?.globalRole || 'Student'}
-            </Text>
           </View>
         </View>
         
