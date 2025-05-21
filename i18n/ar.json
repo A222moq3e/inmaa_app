@@ -11,7 +11,7 @@
       "welcome_back": "مرحبًا بعودتك",
       "login_to_access": "سجل الدخول للوصول إلى حسابك",
       "login": "تسجيل الدخول",
-      "register": "إنشاء حساب",
+      "register": "انشئ حسابك",
       "create_account": "إنشاء حساب جديد",
       "register_to_get_started": "سجل للبدء",
       "email": "البريد الإلكتروني",
@@ -26,8 +26,8 @@
       "display_name_description": "كيف سيراك الآخرون",
       "phone_number": "رقم الهاتف",
       "enter_phone_number": "أدخل رقم هاتفك",
-      "already_have_account": "هل لديك حساب بالفعل؟",
-      "dont_have_account": "ليس لديك حساب؟"
+      "already_have_account": "هل لديك حساب؟ ",
+      "dont_have_account": "ليس لديك حساب؟ "
     },
     "settings": {
       "title": "الإعدادات",
