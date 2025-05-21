@@ -112,6 +112,28 @@ export const getAllEvents = async (
   return result.data;
 };
 
+
+export const getEventById = async (
+  eventId: number,
+  queryParams?: Record<string, any>
+): Promise<EventResponse> => {
+  const headers = await createHeaders(false, false);
+  const queryString = queryParams
+    ? new URLSearchParams(queryParams).toString()
+    : "";
+
+  const response = await fetch(
+    `${EFFECTIVE_API_URL}/events/${eventId}?${queryString}`,
+    {
+      headers,
+    }
+  );
+
+  if (!response.ok) throw new Error(i18n.t("errors.fetch_event"));
+
+  return await response.json();
+};
+
 export const getEventByUuid = async (
   eventUuid: string,
   queryParams?: Record<string, any>
@@ -197,5 +219,3 @@ export const unregisterFromEvent = async (eventUuid: string): Promise<void> => {
   if (!response.ok) throw new Error(i18n.t("errors.unregister_event"));
 };
 
-// Alias for backward compatibility
-export const getEventById = getEventByUuid;
