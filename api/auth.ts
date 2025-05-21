@@ -1,6 +1,8 @@
 import Constants from 'expo-constants';
-const { API_URL } = Constants.expoConfig.extra;
-
+const API_URL = Constants.expoConfig?.extra?.API_URL;
+// Use a fallback for development if API_URL is not defined
+const FALLBACK_API_URL = 'http://10.0.2.2:5000';
+const EFFECTIVE_API_URL = API_URL || FALLBACK_API_URL;
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import i18n from '../i18n';
 
@@ -65,7 +67,7 @@ const createHeaders = (includeContentType = true): Record<string, string> => {
 // Auth Functions
 export const login = async (credentials: LoginCredentials): Promise<User> => {
   const headers = createHeaders();
-  const response = await fetch(`${API_URL}/auth/login`, {
+  const response = await fetch(`${EFFECTIVE_API_URL}/auth/login`, {
     method: 'POST',
     headers,
     body: JSON.stringify(credentials),
@@ -87,7 +89,7 @@ export const login = async (credentials: LoginCredentials): Promise<User> => {
 
 export const tempLogin = async (credentials: TempLoginCredentials): Promise<User> => {
   const headers = createHeaders();
-  const response = await fetch(`${API_URL}/login/tmp`, {
+  const response = await fetch(`${EFFECTIVE_API_URL}/login/tmp`, {
     method: 'POST',
     headers,
     body: JSON.stringify(credentials),
@@ -110,7 +112,7 @@ export const tempLogin = async (credentials: TempLoginCredentials): Promise<User
 
 export const register = async (userData: RegisterData): Promise<User> => {
   const headers = createHeaders();
-  const response = await fetch(`${API_URL}/register/tmp`, {
+  const response = await fetch(`${EFFECTIVE_API_URL}/register/tmp`, {
     method: 'POST',
     headers,
     body: JSON.stringify(userData),
