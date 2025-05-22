@@ -34,15 +34,15 @@ export interface EventCardProps {
   onPress?: (eventId: number) => void;
 }
 
-const categoryThemes: Record<EventCategory, { overlay: string; badge: string; accent: string; progress: string; }> = {
-  bootcamp: { overlay: "rgba(25, 118, 210, 0.85)", badge: "bg-blue-500", accent: "text-blue-500", progress: "bg-blue-600" },
-  workshop: { overlay: "rgba(156, 39, 176, 0.85)", badge: "bg-purple-500", accent: "text-purple-500", progress: "bg-purple-600" },
-  meeting: { overlay: "rgba(46, 125, 50, 0.85)", badge: "bg-green-500", accent: "text-green-500", progress: "bg-green-600" },
-  hackathon: { overlay: "rgba(245, 124, 0, 0.85)", badge: "bg-orange-500", accent: "text-orange-500", progress: "bg-orange-600" },
-  seminar: { overlay: "rgba(121, 85, 72, 0.85)", badge: "bg-yellow-700", accent: "text-yellow-700", progress: "bg-yellow-800" },
-  conference: { overlay: "rgba(0, 150, 136, 0.85)", badge: "bg-teal-500", accent: "text-teal-500", progress: "bg-teal-600" },
-  networking: { overlay: "rgba(3, 169, 244, 0.85)", badge: "bg-sky-500", accent: "text-sky-500", progress: "bg-sky-600" },
-  other: { overlay: "rgba(66, 66, 66, 0.85)", badge: "bg-gray-500", accent: "text-gray-500", progress: "bg-gray-600" },
+const categoryThemes: Record<EventCategory, { badge: string; accent: string; progress: string; }> = {
+  bootcamp: { badge: "bg-blue-500", accent: "text-blue-500", progress: "bg-blue-600" },
+  workshop: { badge: "bg-purple-500", accent: "text-purple-500", progress: "bg-purple-600" },
+  meeting: { badge: "bg-green-500", accent: "text-green-500", progress: "bg-green-600" },
+  hackathon: { badge: "bg-orange-500", accent: "text-orange-500", progress: "bg-orange-600" },
+  seminar: { badge: "bg-yellow-700", accent: "text-yellow-700", progress: "bg-yellow-800" },
+  conference: { badge: "bg-teal-500", accent: "text-teal-500", progress: "bg-teal-600" },
+  networking: { badge: "bg-sky-500", accent: "text-sky-500", progress: "bg-sky-600" },
+  other: { badge: "bg-gray-500", accent: "text-gray-500", progress: "bg-gray-600" },
 };
 
 const formatDate = (dateInput?: string | Date): string => {
@@ -163,55 +163,15 @@ interface ElegantEventCardProps {
 
 const ElegantEventCard = ({ event, theme, handlePress, className }: ElegantEventCardProps) => {
   const { t } = useTranslation();
+  const defaultImage = require('~/assets/imgs/event-default.png');
+  const imageSource = event.poster ? { uri: event.poster } : defaultImage;
+  
   return (
     <Pressable onPress={handlePress} className={cn("mb-4 overflow-hidden rounded-lg shadow-md", className)}>
       <Card className="overflow-hidden border-0 bg-card dark:bg-card-dark">
-        {event.poster ? (
-          <ImageBackground source={{ uri: event.poster }} className="w-full h-56" resizeMode="cover">
-            <View className="w-full h-full p-4 justify-between" style={{ backgroundColor: theme.overlay }}>
-              <View className="flex-row justify-between items-start">
-                <View className={cn("px-2 py-1 rounded-full", theme.badge)}>
-                  <Text className="text-xs font-medium text-white">
-                    {t(`event.categories.${event.category}`)}
-                  </Text>
-                </View>
-                <EventStatusBadge status={event.status} />
-              </View>
-              <View>
-                <Text className="text-xl font-bold text-white mb-1">
-                  {event.name}
-                </Text>
-                {event.description && (
-                  <Text className="text-sm text-white opacity-90 mb-2" numberOfLines={2}>
-                    {event.description}
-                  </Text>
-                )}
-                <View className="flex-row flex-wrap items-center">
-                  {event.eventStart && (
-                    <View className="flex-row items-center mr-3 mb-1">
-                      <Calendar size={14} color="white" className="mr-1.5" />
-                      <Text className="text-xs text-white">{formatDate(event.eventStart)}</Text>
-                    </View>
-                  )}
-                  {event.eventStart && (
-                    <View className="flex-row items-center mr-3 mb-1">
-                      <Clock size={14} color="white" className="mr-1.5" />
-                      <Text className="text-xs text-white">{formatTime(event.eventStart)}</Text>
-                    </View>
-                  )}
-                  {event.location && (
-                    <View className="flex-row items-center mb-1">
-                      <MapPin size={14} color="white" className="mr-1.5" />
-                      <Text className="text-xs text-white" numberOfLines={1}>{event.location}</Text>
-                    </View>
-                  )}
-                </View>
-              </View>
-            </View>
-          </ImageBackground>
-        ) : (
-          <View className="w-full h-56 p-4 justify-between items-center" style={{ backgroundColor: theme.overlay }}>
-            <View className="absolute top-4 left-4 right-4 flex-row justify-between items-start">
+        <ImageBackground source={imageSource} className="w-full h-56" resizeMode="cover">
+          <View className="w-full h-full p-4 justify-between bg-black/50">
+            <View className="flex-row justify-between items-start">
               <View className={cn("px-2 py-1 rounded-full", theme.badge)}>
                 <Text className="text-xs font-medium text-white">
                   {t(`event.categories.${event.category}`)}
@@ -219,11 +179,10 @@ const ElegantEventCard = ({ event, theme, handlePress, className }: ElegantEvent
               </View>
               <EventStatusBadge status={event.status} />
             </View>
-            <View className="items-center">
-              <Calendar size={48} color="rgba(255,255,255,0.7)" />
-            </View>
-            <View className="self-stretch">
-              <Text className="text-xl font-bold text-white mb-1">{event.name}</Text>
+            <View>
+              <Text className="text-xl font-bold text-white mb-1">
+                {event.name}
+              </Text>
               {event.description && (
                 <Text className="text-sm text-white opacity-90 mb-2" numberOfLines={2}>
                   {event.description}
@@ -251,7 +210,7 @@ const ElegantEventCard = ({ event, theme, handlePress, className }: ElegantEvent
               </View>
             </View>
           </View>
-        )}
+        </ImageBackground>
         {event.seatsAvailable !== undefined && event.seatsAvailable !== null && event.status !== 'completed' && (
           <View className="p-3">
             <SeatsAvailability available={event.seatsAvailable} theme={theme} />
@@ -267,11 +226,13 @@ interface CompactEventCardProps {
   theme: ReturnType<typeof getTheme>;
   handlePress: () => void;
   className?: string;
-  imageSource: ImageSourcePropType;
 }
 
-const CompactEventCard = ({ event, theme, handlePress, className, imageSource }: CompactEventCardProps) => {
+const CompactEventCard = ({ event, theme, handlePress, className }: CompactEventCardProps) => {
   const { t } = useTranslation();
+  const defaultImage = require('~/assets/imgs/event-default.png');
+  const imageSource = event.poster ? { uri: event.poster } : defaultImage;
+  
   return (
     <Pressable onPress={handlePress} className={cn("mb-3", className)}>
       <Card className="w-full flex-row overflow-hidden border dark:border-gray-700 shadow-sm rounded-lg bg-card dark:bg-card-dark h-32">
@@ -330,12 +291,9 @@ export function EventCard({ event: apiEvent, variant = "elegant", className, onP
     }
   };
 
-  const defaultImage = require('~/assets/imgs/event-default.png');
-  const imageSource = event.poster ? { uri: event.poster } : defaultImage;
-
   if (variant === "elegant") {
     return <ElegantEventCard event={event} theme={theme} handlePress={handlePress} className={className} />;
   }
 
-  return <CompactEventCard event={event} theme={theme} handlePress={handlePress} className={className} imageSource={imageSource} />;
+  return <CompactEventCard event={event} theme={theme} handlePress={handlePress} className={className} />;
 }

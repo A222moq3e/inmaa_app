@@ -215,8 +215,8 @@ export default function EventDetailsScreen() {
         >
           <Image
             source={
-              event.image
-                ? { uri: event.image }
+              event.poster
+                ? { uri: event.poster }
                 : require("../assets/imgs/event-default.png")
             }
             className="h-48 w-48 rounded-md mb-4"
