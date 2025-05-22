@@ -168,6 +168,13 @@ export default function EventDetailsScreen() {
     return now > eventEnd;
   };
 
+  // Navigation to club details
+  const navigateToClub = () => {
+    if (event?.club?.uuid) {
+      router.push(`/ClubDetails?uuid=${event.club.uuid}`);
+    }
+  };
+
   if (loading) {
     return (
       <View className="flex-1 justify-center items-center bg-background">
@@ -326,9 +333,15 @@ export default function EventDetailsScreen() {
                     {t("event.organized_by")}
                   </Text>
                 </View>
-                <Text className="text-base text-foreground/80">
-                  {event.club.name}
-                </Text>
+                <TouchableOpacity 
+                  onPress={navigateToClub}
+                  className="flex-row items-center"
+                >
+                  <Text className="text-base text-primary mr-1">
+                    {event.club.name}
+                  </Text>
+                  <Text className="text-xs text-primary">{t("event.view_club", "View Club")}</Text>
+                </TouchableOpacity>
               </View>
             )}
 
