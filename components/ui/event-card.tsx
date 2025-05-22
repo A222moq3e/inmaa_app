@@ -322,8 +322,10 @@ export function EventCard({ event: apiEvent, variant = "elegant", className, onP
 
   const handlePress = () => {
     if (onPress) {
+      console.log('onPress eventId', event.id);
       onPress(event.id);
     } else {
+      console.log('push eventId2', event.id);
       router.push({ pathname: "/EventDetails", params: { id: event.id } });
     }
   };

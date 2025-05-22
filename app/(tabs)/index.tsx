@@ -153,6 +153,7 @@ export default function HomeScreen() {
             event={event}
             variant="compact"
             className="mr-4"
+            
           />
         ))}
       </ScrollView>

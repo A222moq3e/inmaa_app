@@ -39,8 +39,8 @@ export default function EventDetailsScreen() {
   const { t } = useTranslation();
   const router = useRouter();
   const { isDarkColorScheme } = useColorScheme();
-  const params = useLocalSearchParams<{ uuid: string }>();
-  const eventUuid = params.uuid;
+  const params = useLocalSearchParams<{ id: string }>();
+  const eventUuid = params.id;
 
   const [event, setEvent] = useState<Event | null>(null);
   const [loading, setLoading] = useState(true);
@@ -74,7 +74,6 @@ export default function EventDetailsScreen() {
         } else {
           response = await getEventByUuid(eventUuid);
         }
-
         // Handle nested response structure
         if (response.data && response.data.event) {
           setEvent(response.data.event);
