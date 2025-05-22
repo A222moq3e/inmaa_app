@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { View, TextInput, TouchableOpacity, ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
+import { View, TouchableOpacity, ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
+import { Input as TextInput } from '~/components/ui/input'; 
 import { Text } from '~/components/ui/text';
 import { useAuth } from '~/context/AuthContext';
 import { router } from 'expo-router';
@@ -56,7 +57,7 @@ export default function RegisterScreen() {
       className="flex-1"
     >
       <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-        <View className="flex-1 p-6 bg-background">
+        <View className="flex-1 p-6 justify-center bg-background">
           <View className="mb-8 items-center">
             <Text className="text-3xl font-bold mb-2">{t('auth.create_account', 'Create Account')}</Text>
             <Text className="text-muted-foreground text-center">
