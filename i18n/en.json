@@ -67,15 +67,17 @@
     "end_date": "End Date",
     "registration_period": "Registration Period",
     "reg_period": "Registration Period",
-    "registration_open": "Registration is currently open",
-    "you_are_registered": "You are registered for this event",
-    "seats_available": "Available Seats",
-    "seats_remaining": "Remaining Seats",
+    "seats_remaining": "{{count}} seats remaining",
     "location": "Location",
     "organized_by": "Organized by",
-    "status": "Status",
-    "past": "Past",
-    "upcoming": "Upcoming",
+    "status_label": "Status",
+    "status": {
+      "upcoming": "Upcoming",
+      "ongoing": "Ongoing",
+      "completed": "Completed",
+      "registration": "Registration",
+      "full": "Full"
+    },
     "category": "Category",
     "categories": {
       "bootcamp": "Bootcamp",
@@ -83,6 +85,9 @@
       "seminar": "Seminar",
       "conference": "Conference",
       "competition": "Competition",
+      "hackathon": "Hackathon",
+      "meeting": "Meeting",
+      "networking": "Networking",
       "other": "Other"
     },
     "register": "Register",
@@ -125,8 +130,12 @@
     "invalid_event": "Invalid event data",
     "invalid_id": "Invalid ID format"
   },
-  "login": {
+  "login_prompts": {
     "required_title": "Login Required",
     "required_message": "Please login to register for this event"
+  },
+  "home": {
+    "registered_events": "Your Events",
+    "suggested_events": "Suggested Events"
   }
 }
