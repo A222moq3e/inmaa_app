@@ -1,11 +1,12 @@
 import * as React from "react";
-import { ScrollView, Text, ActivityIndicator, View } from "react-native";
+import { ScrollView, ActivityIndicator, View } from "react-native";
 import { useTranslation } from "react-i18next";
 import { Event as ApiEvent, getAllEvents, getEventById } from "~/api/EventDetails";
 import { EventCard } from "~/components/ui/event-card";
 import { EventCard as RegistrationCard } from "~/components/ui/registration-card";
 import { getUserProfile } from "~/api/profile";
 import { useAuth } from "~/context/AuthContext";
+import { Text } from "~/components/ui/text";
 
 
 
