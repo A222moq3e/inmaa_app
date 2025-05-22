@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import {
   View,
   Image,
@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Alert,
   ActivityIndicator,
+  RefreshControl,
 } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { useTranslation } from "react-i18next";
@@ -50,6 +51,7 @@ export default function EventDetailsScreen() {
   const [isEventAdmin, setIsEventAdmin] = useState(false);
   const [isUserAuthenticated, setIsUserAuthenticated] = useState(false);
   const [isRegistering, setIsRegistering] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
   // Check if user is authenticated
   useEffect(() => {
@@ -102,6 +104,49 @@ export default function EventDetailsScreen() {
     };
 
     fetchEvent();
+  }, [eventUuid, t]);
+
+  // Handle refresh when user pulls down
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    if (!eventUuid) {
+      setRefreshing(false);
+      return;
+    }
+
+    try {
+      let response;
+      if (!isNaN(Number(eventUuid))) {
+        response = await getEventById(Number(eventUuid));
+      } else {
+        response = await getEventByUuid(eventUuid);
+      }
+      
+      // Handle nested response structure
+      if (response.data && response.data.event) {
+        setEvent(response.data.event);
+        // Check if user is registered based on registered users array
+        const isUserRegistered =
+          response.data.registeredUsersData &&
+          response.data.registeredUsersData.length > 0;
+        setIsRegistered(isUserRegistered);
+        setIsEventAdmin(false); // Update based on actual admin status logic
+      } else if (response.event) {
+        // Handle direct response format
+        setEvent(response.event);
+        setIsRegistered(response.isRegistered || false);
+        setIsEventAdmin(response.isEventAdmin || false);
+      } else {
+        throw new Error(t("event.not_found"));
+      }
+
+      setError(null);
+    } catch (err) {
+      // Don't update error state on refresh to keep current view
+      console.error("Refresh error:", err);
+    } finally {
+      setRefreshing(false);
+    }
   }, [eventUuid, t]);
 
   // Format date for display
@@ -214,7 +259,18 @@ export default function EventDetailsScreen() {
   return (
     <SafeAreaView className="flex-1 bg-background">
       <StatusBar style={isDarkColorScheme ? "light" : "dark"} />
-      <ScrollView>
+      <ScrollView
+        refreshControl={
+          <RefreshControl 
+            refreshing={refreshing} 
+            onRefresh={onRefresh}
+            colors={["#0284c7"]} // Color for Android
+            tintColor={isDarkColorScheme ? "#ffffff" : "#0284c7"} // Color for iOS
+            title={t("event.pull_to_refresh", "Pull to refresh")} // Only visible on iOS
+            titleColor={isDarkColorScheme ? "#ffffff" : "#0284c7"} // Only visible on iOS
+          />
+        }
+      >
         {/* Header Section */}
         <View
           className={`items-center p-6 border-b border-border ${

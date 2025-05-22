@@ -101,7 +101,8 @@
     "upcoming": "قادمة",
     "seats_available": "المقاعد المتاحة:",
     "you_are_registered": "أنت مسجل في هذه الفعالية",
-    "registration_open": "التسجيل مفتوح حاليًا"
+    "registration_open": "التسجيل مفتوح حاليًا",
+    "pull_to_refresh": "اسحب للتحديث"
   },
   "errors": {
     "fetch_clubs": "فشل في جلب الأندية",

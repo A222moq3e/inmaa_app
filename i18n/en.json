@@ -101,7 +101,8 @@
     "upcoming": "Upcoming",
     "seats_available": "Available Seats:",
     "you_are_registered": "You are registered for this event",
-    "registration_open": "Registration is currently open"
+    "registration_open": "Registration is currently open",
+    "pull_to_refresh": "Pull to refresh"
   },
   "errors": {
     "fetch_clubs": "Failed to fetch clubs",
