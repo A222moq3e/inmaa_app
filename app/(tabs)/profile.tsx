@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, ScrollView, RefreshControl, ActivityIndicator, Alert } from 'react-native';
 import { Text } from '~/components/ui/text';
 import { Avatar, AvatarImage, AvatarFallback } from '~/components/ui/avatar';
-import { EventCard } from '~/components/ui/event-card';
+import { EventCard } from '~/components/ui/registration-card';
 import { getUserProfile, UserProfile, EventRegistration } from '~/api/profile';
 import { getEventById, Event } from '~/api/EventDetails';
 import { useAuth } from '~/context/AuthContext';
