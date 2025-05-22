@@ -1,16 +1,45 @@
-# Starter base
+# Inmaa App
 
-A starting point to help you set up your project quickly and use the common components provided by `react-native-reusables`. The idea is to make it easier for you to get started.
+A mobile application for managing and attending events, built with React Native and Expo.
+
+---
 
 ## Features
 
-- NativeWind v4
-- Dark and light mode
-  - Android Navigation Bar matches mode
-  - Persistent mode
-- Common components
-  - ThemeToggle, Avatar, Button, Card, Progress, Text, Tooltip
+### User Authentication
 
-<img src="https://github.com/mrzachnugent/react-native-reusables/assets/63797719/42c94108-38a7-498b-9c70-18640420f1bc"
-     alt="starter-base-template"
-     style="width:270px;" />
+- Login and registration flow  
+- Social login options  
+- Profile management  
+
+### Event Management
+
+- Browse upcoming events  
+- View event details  
+- Register for events  
+- Track registration status  
+
+### Personalized Experience
+
+- View your registered events  
+- Suggested events based on interests  
+- Event history tracking  
+
+### UI/UX
+
+- Dark and light mode support  
+- Responsive design  
+- Elegant animations and transitions  
+- Multilingual support  
+
+<img width="353" alt="image" src="https://github.com/user-attachments/assets/68d69358-dba7-45d9-8ff3-883e311ed1ca" />
+
+---
+
+## Technology Stack
+
+- Expo Router for navigation  
+- NativeWind for styling  
+- Internationalization (i18n) support  
+- API integration with secure token management  
+- Component-based architecture with reusable UI elements  
