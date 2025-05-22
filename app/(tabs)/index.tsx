@@ -62,9 +62,10 @@ export default function HomeScreen() {
         const profile = await getUserProfile(userId);
         
         // Only process registrations with "accepted" status
-        const acceptedRegistrations = profile.eventRegistration?.filter(reg => 
-          reg.status === 'accepted'
-        ) || [];
+        // const acceptedRegistrations = profile.eventRegistration?.filter(reg => 
+        //   reg.status === 'accepted'
+        // ) || [] ;
+        const acceptedRegistrations = profile.eventRegistration || [];
         
         if (acceptedRegistrations.length > 0) {
           const eventPromises = acceptedRegistrations.map(async (reg) => {
