@@ -3,6 +3,8 @@ const API_URL = Constants.expoConfig?.extra?.API_URL;
 // Use a fallback for development if API_URL is not defined
 const FALLBACK_API_URL = 'http://10.0.2.2:5006';
 const EFFECTIVE_API_URL = API_URL || FALLBACK_API_URL;
+
+
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import i18n from '../i18n';
 import { clearAllProfileCaches } from './profile';
@@ -68,70 +70,93 @@ const createHeaders = (includeContentType = true): Record<string, string> => {
 // Auth Functions
 export const login = async (credentials: LoginCredentials): Promise<User> => {
   const headers = createHeaders();
-  const response = await fetch(`${EFFECTIVE_API_URL}/auth/login`, {
-    method: 'POST',
-    headers,
-    body: JSON.stringify(credentials),
-  });
+  const url = `${EFFECTIVE_API_URL}/auth/login`;
+  
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify(credentials),
+    });
 
-  if (!response.ok) {
-    throw new Error(i18n.t('errors.login_failed'));
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(i18n.t('errors.login_failed'));
+    }
+
+    const responseData: LoginResponse = await response.json();
+    const { token, user } = responseData.data;
+    
+    // Store token and user data
+    await AsyncStorage.setItem(AUTH_TOKEN_KEY, token);
+    await AsyncStorage.setItem(USER_DATA_KEY, JSON.stringify(user));
+    
+    return user;
+  } catch (error) {
+    throw error;
   }
-
-  const responseData: LoginResponse = await response.json();
-  const { token, user } = responseData.data;
-  
-  // Store token and user data
-  await AsyncStorage.setItem(AUTH_TOKEN_KEY, token);
-  await AsyncStorage.setItem(USER_DATA_KEY, JSON.stringify(user));
-  
-  return user;
 };
 
 export const tempLogin = async (credentials: TempLoginCredentials): Promise<User> => {
   const headers = createHeaders();
-  const response = await fetch(`${EFFECTIVE_API_URL}/login/tmp`, {
-    method: 'POST',
-    headers,
-    body: JSON.stringify(credentials),
-  });
+  const url = `${EFFECTIVE_API_URL}/login/tmp`;
+  
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify(credentials),
+    });
 
-  if (!response.ok) {
-    const errorData = await response.json();
-    throw new Error(errorData.error || i18n.t('errors.login_failed'));
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      const errorData = JSON.parse(errorText);
+      throw new Error(errorData.error || i18n.t('errors.login_failed'));
+    }
+
+    const responseData: LoginResponse = await response.json();
+    const { token, user } = responseData.data;
+    
+    // Store token and user data
+    await AsyncStorage.setItem(AUTH_TOKEN_KEY, token);
+    await AsyncStorage.setItem(USER_DATA_KEY, JSON.stringify(user));
+    
+    return user;
+  } catch (error) {
+    throw error;
   }
-
-  const responseData: LoginResponse = await response.json();
-  const { token, user } = responseData.data;
-  
-  // Store token and user data
-  await AsyncStorage.setItem(AUTH_TOKEN_KEY, token);
-  await AsyncStorage.setItem(USER_DATA_KEY, JSON.stringify(user));
-  
-  return user;
 };
 
 export const register = async (userData: RegisterData): Promise<User> => {
   const headers = createHeaders();
-  const response = await fetch(`${EFFECTIVE_API_URL}/register/tmp`, {
-    method: 'POST',
-    headers,
-    body: JSON.stringify(userData),
-  });
+  const url = `${EFFECTIVE_API_URL}/register/tmp`;
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify(userData),
+    });
 
-  if (!response.ok) {
-    const errorData = await response.json();
-    throw new Error(errorData.error || i18n.t('errors.registration_failed'));
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      const errorData = JSON.parse(errorText);
+      throw new Error(errorData.error || i18n.t('errors.registration_failed'));
+    }
+
+    const responseData: LoginResponse = await response.json();
+    const { token, user } = responseData.data;
+    
+    // Store token and user data
+    await AsyncStorage.setItem(AUTH_TOKEN_KEY, token);
+    await AsyncStorage.setItem(USER_DATA_KEY, JSON.stringify(user));
+    
+    return user;
+  } catch (error) {
+    throw error;
   }
-
-  const responseData: LoginResponse = await response.json();
-  const { token, user } = responseData.data;
-  
-  // Store token and user data
-  await AsyncStorage.setItem(AUTH_TOKEN_KEY, token);
-  await AsyncStorage.setItem(USER_DATA_KEY, JSON.stringify(user));
-  
-  return user;
 };
 
 export const logout = async (): Promise<void> => {

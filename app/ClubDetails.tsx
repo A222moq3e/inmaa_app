@@ -17,6 +17,7 @@ import { Button } from "~/components/ui/button";
 import { ArrowLeft } from "lucide-react-native";
 
 export default function ClubDetailsScreen() {
+  console.log('ClubDetailsScreen');
   const { t } = useTranslation();
   const { isDarkColorScheme } = useColorScheme();
   const params = useLocalSearchParams<{ uuid: string }>();
@@ -29,6 +30,7 @@ export default function ClubDetailsScreen() {
   useEffect(() => {
     const fetchClub = async () => {
       try {
+        console.log('fetchClub', clubUuid);
         const data = await getClubByUuid(clubUuid);
         setClub(data);
         setError(null);
