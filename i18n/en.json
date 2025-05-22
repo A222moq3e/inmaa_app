@@ -143,6 +143,8 @@
   },
   "home": {
     "registered_events": "Your Events",
-    "suggested_events": "Suggested Events"
+    "suggested_events": "Suggested Events",
+    "refreshing": "Refreshing...",
+    "no_events_available": "No events available"
   }
 }

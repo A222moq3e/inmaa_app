@@ -1,5 +1,5 @@
 import * as React from "react";
-import { ScrollView, ActivityIndicator, View } from "react-native";
+import { ScrollView, ActivityIndicator, View, RefreshControl } from "react-native";
 import { useTranslation } from "react-i18next";
 import { Event as ApiEvent, getAllEvents, getEventById } from "~/api/EventDetails";
 import { EventCard } from "~/components/ui/event-card";
@@ -14,11 +14,68 @@ export default function HomeScreen() {
   const [suggestedEvents, setSuggestedEvents] = React.useState<ApiEvent[]>([]);
   const [registeredEvents, setRegisteredEvents] = React.useState<any[]>([]);
   const [allEvents, setAllEvents] = React.useState<ApiEvent[]>([]);
-  // The event IDs could be either strings or numbers, so we use a more general type
   const [registeredEventIds, setRegisteredEventIds] = React.useState<(string | number)[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [loadingRegisteredEvents, setLoadingRegisteredEvents] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
+  const [refreshing, setRefreshing] = React.useState(false);
+
+  // Function to handle pull-to-refresh
+  const onRefresh = React.useCallback(async () => {
+    setRefreshing(true);
+    setError(null);
+    
+    try {
+      // Fetch all events
+      const events = await getAllEvents();
+      setAllEvents(events);
+      
+      // Fetch registered events if user is logged in
+      if (user && (user.id || user.uuid)) {
+        const userId = user.id || user.uuid || "";
+        const profile = await getUserProfile(userId);
+        const acceptedRegistrations = profile.eventRegistration || [];
+        
+        // Update registered event IDs
+        const eventIds = acceptedRegistrations.map((reg) => reg.eventId);
+        setRegisteredEventIds(eventIds);
+        
+        if (acceptedRegistrations.length > 0) {
+          const eventPromises = acceptedRegistrations.map(async (reg) => {
+            try {
+              const eventResponse = await getEventById(reg.eventId);
+              const eventData = eventResponse.event || eventResponse.data?.event;
+              
+              if (eventData) {
+                return {
+                  id: reg.id,
+                  eventId: reg.eventId,
+                  title: eventData.name,
+                  date: eventData.eventStart ? new Date(eventData.eventStart).toLocaleDateString() : undefined,
+                  location: eventData.location,
+                  status: reg.status,
+                };
+              }
+              return null;
+            } catch (err) {
+              console.error(`Failed to load event ${reg.eventId}:`, err);
+              return null;
+            }
+          });
+          
+          const eventDetails = await Promise.all(eventPromises);
+          setRegisteredEvents(eventDetails.filter(Boolean));
+        } else {
+          setRegisteredEvents([]);
+        }
+      }
+    } catch (err) {
+      console.error("Error refreshing data:", err);
+      setError(t("errors.fetch_events"));
+    } finally {
+      setRefreshing(false);
+    }
+  }, [t, user]);
 
   // Fetch all events first
   React.useEffect(() => {
@@ -117,6 +174,15 @@ export default function HomeScreen() {
     <ScrollView
       className="flex-1 bg-secondary/30 p-6"
       contentContainerStyle={{ paddingBottom: 24 }}
+      refreshControl={
+        <RefreshControl
+          refreshing={refreshing}
+          onRefresh={onRefresh}
+          title={t("home.refreshing")}
+          tintColor="#0000ff"
+          titleColor="#0000ff"
+        />
+      }
     >
       <Text className="text-lg font-semibold mb-2">{t("home.registered_events")}</Text>
 

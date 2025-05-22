@@ -143,6 +143,8 @@
   },
   "home": {
     "registered_events": "فعالياتك",
-    "suggested_events": "الفعاليات المقترحة"
+    "suggested_events": "الفعاليات المقترحة",
+    "refreshing": "جاري التحديث...",
+    "no_events_available": "لا توجد فعاليات متاحة"
   }
 }
