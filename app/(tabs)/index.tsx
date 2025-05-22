@@ -26,19 +26,7 @@ export default function HomeScreen() {
       try {
         setLoading(true);
         const events = await getAllEvents();
-
-        // Assign categories to events that don't have them
-        // This will help with color display since the EventCard uses categories for styling
-        const processedEvents = events.map((event) => {
-          if (!event.category) {
-            const categories = ["workshop", "conference", "hackathon", "networking", "bootcamp", "seminar"];
-            const randomCategory = categories[Math.floor(Math.random() * categories.length)];
-            return { ...event, category: randomCategory };
-          }
-          return event;
-        });
-
-        setAllEvents(processedEvents);
+        setAllEvents(events);
       } catch (err) {
         console.error("Error fetching events:", err);
         setError(t("errors.fetch_events"));
