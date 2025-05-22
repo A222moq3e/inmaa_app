@@ -1,15 +1,54 @@
 import * as React from "react";
-import { ScrollView, Text } from "react-native";
+import { ScrollView, Text, ActivityIndicator, View } from "react-native";
 import { useTranslation } from "react-i18next";
-import { Event as ApiEvent } from "~/api/EventDetails"; // Added
+import { Event as ApiEvent, getAllEvents } from "~/api/EventDetails";
 import { EventCard } from "~/components/ui/event-card";
+
+// Define vibrant background colors for cards
+const cardColors = [
+  "bg-blue-500", "bg-green-500", "bg-yellow-500", 
+  "bg-purple-500", "bg-pink-500", "bg-red-500", 
+  "bg-indigo-500", "bg-teal-500", "bg-orange-500"
+];
 
 export default function HomeScreen() {
   const [progress, setProgress] = React.useState(78);
   const { t } = useTranslation();
+  const [suggestedEvents, setSuggestedEvents] = React.useState<ApiEvent[]>([]);
+  const [loading, setLoading] = React.useState(true);
+  const [error, setError] = React.useState<string | null>(null);
 
-  // Mock data for the carousel
-  const carouselEvents: ApiEvent[] = [
+  React.useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        setLoading(true);
+        const events = await getAllEvents();
+        
+        // Assign categories to events that don't have them
+        // This will help with color display since the EventCard uses categories for styling
+        const processedEvents = events.map(event => {
+          if (!event.category) {
+            const categories = ["workshop", "conference", "hackathon", "networking", "bootcamp", "seminar"];
+            const randomCategory = categories[Math.floor(Math.random() * categories.length)];
+            return { ...event, category: randomCategory };
+          }
+          return event;
+        });
+        
+        setSuggestedEvents(processedEvents);
+      } catch (err) {
+        console.error("Error fetching events:", err);
+        setError(t("errors.fetch_events"));
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchEvents();
+  }, [t]);
+
+  // Mock data for registered events with assigned categories
+  const registeredEvents: ApiEvent[] = [
     {
       uuid: "event-uuid-1", 
       id: 1,
@@ -27,7 +66,7 @@ export default function HomeScreen() {
       category: "conference", 
       location: "Online via Zoom",
       poster:
-        "https://images.unsplash.com/photo-1579546929518-9e396f3cc809?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80", // Example poster
+        "https://images.unsplash.com/photo-1579546929518-9e396f3cc809?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80",
       club: {
         name: "Tech Innovators Club",
         uuid: "club-uuid-123",
@@ -51,86 +90,8 @@ export default function HomeScreen() {
       category: "workshop", 
       location: "Community Art & Tech Center, Room 3",
       poster:
-        "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80", // Example poster
+        "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80",
       club: { name: "Digital Artists Collective", uuid: "club-uuid-456" },
-    },
-    {
-      uuid: "event-uuid-3",
-      id: 3,
-      name: "Indie Music Showcase",
-      description:
-        "Discover your new favorite bands at our monthly indie music showcase. Great music, good vibes, and local talent.",
-      seatsAvailable: 0, 
-      clubId: "club-uuid-789",
-      registrationStart: "2025-08-01T12:00:00Z",
-      registrationEnd: "2025-09-04T23:59:00Z",
-      eventStart: "2025-09-05T18:00:00Z",
-      eventEnd: "2025-09-07T23:00:00Z",
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      category: "networking", 
-      location: "The Underground Venue",
-      poster: undefined, 
-      club: { name: "Local Music Scene", uuid: "club-uuid-789" },
-    },
-  ];
-
-  const registeredEvents: ApiEvent[] = [carouselEvents[0], carouselEvents[1]];
-  const suggestedEvents: ApiEvent[] = [
-    carouselEvents[2],
-    {
-      uuid: "event-uuid-4",
-      id: 4,
-      name: "AI Hackathon 2025",
-      description: "Collaborate on AI projects and compete for prizes in our annual hackathon.",
-      seatsAvailable: 50,
-      clubId: "club-uuid-321",
-      registrationStart: "2025-06-10T09:00:00Z",
-      registrationEnd: "2025-07-10T17:00:00Z",
-      eventStart: "2025-07-15T09:00:00Z",
-      eventEnd: "2025-07-17T18:00:00Z",
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      category: "hackathon",
-      location: "Innovation Lab, Building A",
-      poster: "https://images.unsplash.com/photo-1526378723231-923a01e51f88?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80",
-      club: { name: "AI Enthusiasts", uuid: "club-uuid-321" },
-    },
-    {
-      uuid: "event-uuid-5",
-      id: 5,
-      name: "Data Science Bootcamp",
-      description: "A comprehensive bootcamp on data analysis, machine learning, and visualization techniques.",
-      seatsAvailable: 40,
-      clubId: "club-uuid-987",
-      registrationStart: "2025-05-15T10:00:00Z",
-      registrationEnd: "2025-06-15T18:00:00Z",
-      eventStart: "2025-06-20T09:00:00Z",
-      eventEnd: "2025-06-25T17:00:00Z",
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      category: "bootcamp",
-      location: "Data Hub, Room 101",
-      poster: "https://images.unsplash.com/photo-1562577309-2592ab84b1bc?auto=format&fit=crop&w=1950&q=80",
-      club: { name: "Data Wizards", uuid: "club-uuid-987" },
-    },
-    {
-      uuid: "event-uuid-6",
-      id: 6,
-      name: "Monthly Networking Meetup",
-      description: "Connect with fellow professionals and expand your network in our casual meetup.",
-      seatsAvailable: 20,
-      clubId: "club-uuid-555",
-      registrationStart: "2025-05-25T12:00:00Z",
-      registrationEnd: "2025-06-25T17:00:00Z",
-      eventStart: "2025-07-01T19:00:00Z",
-      eventEnd: "2025-07-01T21:00:00Z",
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      category: "networking",
-      location: "City Cafe, Lounge Area",
-      poster: undefined,
-      club: { name: "Connectors Club", uuid: "club-uuid-555" },
     },
   ];
 
@@ -153,21 +114,32 @@ export default function HomeScreen() {
             event={event}
             variant="compact"
             className="mr-4"
-            
           />
         ))}
       </ScrollView>
+      
       <Text className="text-lg font-semibold mb-2">
         {t("home.suggested_events")}
       </Text>
-      {suggestedEvents.map((event) => (
-        <EventCard
-          key={event.id}
-          event={event}
-          variant="elegant"
-          className="mb-4"
-        />
-      ))}
+      
+      {loading ? (
+        <View className="py-10 flex items-center justify-center">
+          <ActivityIndicator size="large" color="#0000ff" />
+        </View>
+      ) : error ? (
+        <Text className="text-red-500 py-4">{error}</Text>
+      ) : suggestedEvents.length === 0 ? (
+        <Text className="py-4">{t("home.no_events_available")}</Text>
+      ) : (
+        suggestedEvents.map((event) => (
+          <EventCard
+            key={event.uuid}
+            event={event}
+            variant="elegant"
+            className="mb-4"
+          />
+        ))
+      )}
     </ScrollView>
   );
 }
