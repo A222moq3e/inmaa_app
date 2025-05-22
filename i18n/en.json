@@ -94,7 +94,14 @@
     "unregister": "Unregister",
     "processing": "Processing...",
     "admin_tools": "Admin Tools",
-    "admin_message": "You can manage this event here."
+    "admin_message": "You can manage this event here.",
+    "view_club": "View Club",
+    "visit_club": "Visit Club Page",
+    "past": "Past",
+    "upcoming": "Upcoming",
+    "seats_available": "Available Seats:",
+    "you_are_registered": "You are registered for this event",
+    "registration_open": "Registration is currently open"
   },
   "errors": {
     "fetch_clubs": "Failed to fetch clubs",

@@ -58,6 +58,17 @@
     "go_back": "العودة"
   },
   "event": {
+    "not_found": "لم يتم العثور على الفعالية",
+    "not_found_by_id": "لم يتم العثور على الفعالية بهذا المعرف",
+    "go_back": "العودة",
+    "about": "نبذة",
+    "details": "التفاصيل",
+    "start_date": "تاريخ البدء",
+    "end_date": "تاريخ الانتهاء",
+    "registration_period": "فترة التسجيل",
+    "reg_period": "فترة التسجيل",
+    "organized_by": "منظمة من قبل",
+    "location": "الموقع",
     "status_label": "الحالة",
     "status": {
       "upcoming": "قادمة",
@@ -83,7 +94,14 @@
     "unregister": "إلغاء التسجيل",
     "processing": "جاري المعالجة...",
     "admin_tools": "أدوات الإدارة",
-    "admin_message": "يمكنك إدارة هذه الفعالية من هنا."
+    "admin_message": "يمكنك إدارة هذه الفعالية من هنا.",
+    "view_club": "عرض النادي",
+    "visit_club": "زيارة صفحة النادي",
+    "past": "انتهت",
+    "upcoming": "قادمة",
+    "seats_available": "المقاعد المتاحة:",
+    "you_are_registered": "أنت مسجل في هذه الفعالية",
+    "registration_open": "التسجيل مفتوح حاليًا"
   },
   "errors": {
     "fetch_clubs": "فشل في جلب الأندية",

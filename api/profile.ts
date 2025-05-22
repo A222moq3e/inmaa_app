@@ -3,7 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const API_URL = Constants.expoConfig?.extra?.API_URL;
 // Use a fallback for development if API_URL is not defined
-const FALLBACK_API_URL = 'http://10.0.2.2:5006';
+const FALLBACK_API_URL = 'http://10.0.2.2:5000';
 const EFFECTIVE_API_URL = API_URL || FALLBACK_API_URL;
 
 // AsyncStorage key for user profile cache

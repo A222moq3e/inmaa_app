@@ -33,6 +33,7 @@ import {
   MapPin,
   Users,
   Building2,
+  ExternalLink,
 } from "lucide-react-native";
 
 export default function EventDetailsScreen() {
@@ -168,6 +169,13 @@ export default function EventDetailsScreen() {
     return now > eventEnd;
   };
 
+  // Navigation to club details
+  const navigateToClub = () => {
+    if (event?.club?.uuid) {
+      router.push(`/ClubDetails?uuid=${event.club.uuid}`);
+    }
+  };
+
   if (loading) {
     return (
       <View className="flex-1 justify-center items-center bg-background">
@@ -215,8 +223,8 @@ export default function EventDetailsScreen() {
         >
           <Image
             source={
-              event.image
-                ? { uri: event.image }
+              event.poster
+                ? { uri: event.poster }
                 : require("../assets/imgs/event-default.png")
             }
             className="h-48 w-48 rounded-md mb-4"
@@ -315,20 +323,34 @@ export default function EventDetailsScreen() {
             )}
 
             {event.club && (
-              <View className="flex-row justify-between py-2 border-b border-border">
-                <View className="flex-row items-center">
-                  <Building2
-                    size={16}
-                    color={isDarkColorScheme ? "#ffffff" : "#0284c7"}
-                  />
-                  <View style={{ width: 8 }} />
-                  <Text className="text-base font-semibold text-foreground">
-                    {t("event.organized_by")}
+              <View className="py-2 border-b border-border">
+                <View className="flex-row justify-between mb-1">
+                  <View className="flex-row items-center">
+                    <Building2
+                      size={16}
+                      color={isDarkColorScheme ? "#ffffff" : "#0284c7"}
+                    />
+                    <View style={{ width: 8 }} />
+                    <Text className="text-base font-semibold text-foreground">
+                      {t("event.organized_by")}
+                    </Text>
+                  </View>
+                  <Text className="text-base text-foreground/80">
+                    {event.club.name}
                   </Text>
                 </View>
-                <Text className="text-base text-foreground/80">
-                  {event.club.name}
-                </Text>
+                <Button 
+                  className="mt-2" 
+                  onPress={navigateToClub}
+                >
+                  <View className="flex-row items-center">
+                    <ExternalLink 
+                      size={16} 
+                      className="mr-2 text-primary-foreground" 
+                    />
+                    <Text>{t("event.visit_club", "Visit Club")}</Text>
+                  </View>
+                </Button>
               </View>
             )}
 
@@ -446,7 +468,8 @@ export default function EventDetailsScreen() {
       {/* Floating registration button */}
       <View className="absolute bottom-8 left-4 right-4 bg-background shadow-md rounded-lg">
         <Button
-          className={`w-full ${isRegistered ? "bg-red-500" : "bg-blue-500"}`}
+          className="w-full"
+          variant={isRegistered ? "destructive" : "default"}
           disabled={
             !isRegistrationOpen(event) ||
             isEventPast(event) ||
@@ -455,7 +478,7 @@ export default function EventDetailsScreen() {
           }
           onPress={handleRegistration}
         >
-          <Text className="text-white font-medium">
+          <Text>
             {isRegistering
               ? t("event.processing")
               : isRegistered
