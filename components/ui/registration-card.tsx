@@ -37,7 +37,7 @@ export function EventCard({ event, className }: EventCardProps) {
     <View className={cn(
       'px-2 py-1 rounded-full self-start',
       status === 'pending' ? 'bg-amber-100 dark:bg-amber-900' : 
-      status === 'approved' ? 'bg-green-100 dark:bg-green-900' : 
+      status === 'accepted' ? 'bg-green-100 dark:bg-green-900' : 
       status === 'rejected' ? 'bg-red-100 dark:bg-red-900' : 
       'bg-gray-100 dark:bg-gray-800'
     )}>
