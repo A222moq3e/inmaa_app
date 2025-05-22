@@ -8,26 +8,28 @@ import { getUserProfile } from "~/api/profile";
 import { useAuth } from "~/context/AuthContext";
 import { Text } from "~/components/ui/text";
 
-
-
 export default function HomeScreen() {
   const { t } = useTranslation();
   const { user } = useAuth();
   const [suggestedEvents, setSuggestedEvents] = React.useState<ApiEvent[]>([]);
   const [registeredEvents, setRegisteredEvents] = React.useState<any[]>([]);
+  const [allEvents, setAllEvents] = React.useState<ApiEvent[]>([]);
+  // The event IDs could be either strings or numbers, so we use a more general type
+  const [registeredEventIds, setRegisteredEventIds] = React.useState<(string | number)[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [loadingRegisteredEvents, setLoadingRegisteredEvents] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
 
+  // Fetch all events first
   React.useEffect(() => {
     const fetchEvents = async () => {
       try {
         setLoading(true);
         const events = await getAllEvents();
-        
+
         // Assign categories to events that don't have them
         // This will help with color display since the EventCard uses categories for styling
-        const processedEvents = events.map(event => {
+        const processedEvents = events.map((event) => {
           if (!event.category) {
             const categories = ["workshop", "conference", "hackathon", "networking", "bootcamp", "seminar"];
             const randomCategory = categories[Math.floor(Math.random() * categories.length)];
@@ -35,8 +37,8 @@ export default function HomeScreen() {
           }
           return event;
         });
-        
-        setSuggestedEvents(processedEvents);
+
+        setAllEvents(processedEvents);
       } catch (err) {
         console.error("Error fetching events:", err);
         setError(t("errors.fetch_events"));
@@ -55,24 +57,25 @@ export default function HomeScreen() {
       try {
         if (!user || (!user.id && !user.uuid)) {
           setRegisteredEvents([]);
+          setRegisteredEventIds([]);
           return;
         }
-        
-        const userId = user.id || user.uuid || '';
+
+        const userId = user.id || user.uuid || "";
         const profile = await getUserProfile(userId);
-        
-        // Only process registrations with "accepted" status
-        // const acceptedRegistrations = profile.eventRegistration?.filter(reg => 
-        //   reg.status === 'accepted'
-        // ) || [] ;
+
         const acceptedRegistrations = profile.eventRegistration || [];
-        
+
+        // Store registered event IDs for filtering suggested events later
+        const eventIds = acceptedRegistrations.map((reg) => reg.eventId);
+        setRegisteredEventIds(eventIds);
+
         if (acceptedRegistrations.length > 0) {
           const eventPromises = acceptedRegistrations.map(async (reg) => {
             try {
               const eventResponse = await getEventById(reg.eventId);
-              const eventData = eventResponse.event || (eventResponse.data?.event);
-              
+              const eventData = eventResponse.event || eventResponse.data?.event;
+
               if (eventData) {
                 // Format data for the registration card
                 return {
@@ -81,7 +84,7 @@ export default function HomeScreen() {
                   title: eventData.name,
                   date: eventData.eventStart ? new Date(eventData.eventStart).toLocaleDateString() : undefined,
                   location: eventData.location,
-                  status: reg.status
+                  status: reg.status,
                 };
               }
               return null;
@@ -90,15 +93,16 @@ export default function HomeScreen() {
               return null;
             }
           });
-          
+
           const eventDetails = await Promise.all(eventPromises);
           setRegisteredEvents(eventDetails.filter(Boolean));
         } else {
           setRegisteredEvents([]);
         }
       } catch (err) {
-        console.error('Failed to load registered events:', err);
+        console.error("Failed to load registered events:", err);
         setRegisteredEvents([]);
+        setRegisteredEventIds([]);
       } finally {
         setLoadingRegisteredEvents(false);
       }
@@ -107,31 +111,35 @@ export default function HomeScreen() {
     fetchRegisteredEvents();
   }, [user]);
 
+  // Filter suggested events once we have both all events and registered events
+  React.useEffect(() => {
+    if (allEvents.length > 0) {
+      // Filter out events that the user has already registered for
+      const filtered = allEvents.filter((event) => {
+        // Check if the event's uuid or id exists in registeredEventIds
+        return !registeredEventIds.some((regId) => 
+          regId === event.uuid || regId === event.id
+        );
+      });
+      setSuggestedEvents(filtered);
+    }
+  }, [allEvents, registeredEventIds]);
+
   return (
     <ScrollView
       className="flex-1 bg-secondary/30 p-6"
       contentContainerStyle={{ paddingBottom: 24 }}
     >
-      <Text className="text-lg font-semibold mb-2">
-        {t("home.registered_events")}
-      </Text>
-      
+      <Text className="text-lg font-semibold mb-2">{t("home.registered_events")}</Text>
+
       {loadingRegisteredEvents ? (
         <View className="h-32 justify-center items-center">
           <ActivityIndicator size="small" color="#0000ff" />
         </View>
       ) : registeredEvents.length > 0 ? (
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          className="mb-6"
-        >
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} className="mb-6">
           {registeredEvents.map((event) => (
-            <RegistrationCard
-              key={event.id}
-              event={event}
-              className="mr-4"
-            />
+            <RegistrationCard key={event.id} event={event} className="mr-4" />
           ))}
         </ScrollView>
       ) : (
@@ -141,12 +149,10 @@ export default function HomeScreen() {
           </Text>
         </View>
       )}
-      
-      <Text className="text-lg font-semibold mb-2">
-        {t("home.suggested_events")}
-      </Text>
-      
-      {loading ? (
+
+      <Text className="text-lg font-semibold mb-2">{t("home.suggested_events")}</Text>
+
+      {loading || loadingRegisteredEvents ? (
         <View className="py-10 flex items-center justify-center">
           <ActivityIndicator size="large" color="#0000ff" />
         </View>
@@ -156,12 +162,7 @@ export default function HomeScreen() {
         <Text className="py-4">{t("home.no_events_available")}</Text>
       ) : (
         suggestedEvents.map((event) => (
-          <EventCard
-            key={event.uuid}
-            event={event}
-            variant="elegant"
-            className="mb-4"
-          />
+          <EventCard key={event.uuid} event={event} variant="elegant" className="mb-4" />
         ))
       )}
     </ScrollView>
