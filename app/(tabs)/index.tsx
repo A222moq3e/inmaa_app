@@ -7,12 +7,7 @@ import { EventCard as RegistrationCard } from "~/components/ui/registration-card
 import { getUserProfile } from "~/api/profile";
 import { useAuth } from "~/context/AuthContext";
 
-// Define vibrant background colors for cards
-const cardColors = [
-  "bg-blue-500", "bg-green-500", "bg-yellow-500", 
-  "bg-purple-500", "bg-pink-500", "bg-red-500", 
-  "bg-indigo-500", "bg-teal-500", "bg-orange-500"
-];
+
 
 export default function HomeScreen() {
   const { t } = useTranslation();
