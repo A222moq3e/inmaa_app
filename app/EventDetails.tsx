@@ -1,19 +1,12 @@
 import React, { useEffect, useState } from "react";
 import {
   View,
-  Text,
   Image,
   ScrollView,
   SafeAreaView,
-  ViewStyle,
-  TextStyle,
-  ImageStyle,
-  I18nManager,
   TouchableOpacity,
-  Platform,
-  StyleProp,
   Alert,
-  Dimensions,
+  ActivityIndicator,
 } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { useTranslation } from "react-i18next";
@@ -24,187 +17,30 @@ import {
   EventResponse,
   registerForEvent,
   unregisterFromEvent,
+  getEventById,
 } from "../api/EventDetails";
 import { isAuthenticated } from "../api/auth";
-
-// Enable RTL layout
-I18nManager.forceRTL(true);
-
-// Get screen width
-const screenWidth = Dimensions.get("window").width;
-
-// Inline style objects that mimic Tailwind/NativeWind classes
-const tw = {
-  container: { flex: 1, backgroundColor: "#fff" } as ViewStyle,
-  header: {
-    alignItems: "center",
-    borderBottomWidth: 1,
-    borderBottomColor: "#eee",
-  } as ViewStyle,
-  eventImage: {
-    width: screenWidth,
-    height: 200,
-    marginBottom: 15,
-  } as ImageStyle,
-  eventInfoContainer: {
-    padding: 20,
-  } as ViewStyle,
-  name: {
-    fontSize: 24,
-    fontWeight: "bold" as const,
-    marginBottom: 10,
-    textAlign: "right",
-  } as TextStyle,
-  badgeContainer: {
-    flexDirection: "row",
-    justifyContent: "center",
-    marginTop: 5,
-  } as ViewStyle,
-  badge: {
-    backgroundColor: "#e0e0e0",
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 20,
-    marginHorizontal: 5,
-  } as ViewStyle,
-  statusBadge: { backgroundColor: "#4CAF50" } as ViewStyle,
-  badgeText: {
-    color: "#fff",
-    fontWeight: "600" as const,
-    fontSize: 12,
-    textAlign: "center",
-  } as TextStyle,
-  section: {
-    padding: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: "#eee",
-  } as ViewStyle,
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: "bold" as const,
-    marginBottom: 10,
-    color: "#333",
-    textAlign: "right",
-  } as TextStyle,
-  description: {
-    fontSize: 16,
-    lineHeight: 24,
-    color: "#555",
-    textAlign: "right",
-  } as TextStyle,
-  detailRow: {
-    flexDirection: "row-reverse",
-    paddingVertical: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: "#f0f0f0",
-  } as ViewStyle,
-  detailLabel: {
-    flex: 1,
-    fontSize: 16,
-    color: "#666",
-    textAlign: "right",
-  } as TextStyle,
-  detailValue: {
-    flex: 2,
-    fontSize: 16,
-    color: "#333",
-    textAlign: "right",
-  } as TextStyle,
-  error: {
-    color: "red",
-    textAlign: "center",
-    padding: 20,
-    fontFamily: "Arial",
-    fontSize: 16,
-  } as TextStyle,
-  loading: {
-    textAlign: "center",
-    padding: 20,
-    fontFamily: "Arial",
-    fontSize: 16,
-  } as TextStyle,
-  buttonText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "bold" as const,
-    textAlign: "center",
-  } as TextStyle,
-  seatsInfo: {
-    flexDirection: "row-reverse",
-    justifyContent: "center",
-    marginTop: 10,
-    padding: 10,
-    backgroundColor: "#f8f8f8",
-    borderRadius: 8,
-  } as ViewStyle,
-  seatsText: {
-    fontSize: 14,
-    color: "#555",
-    textAlign: "center",
-  } as TextStyle,
-  statusBox: {
-    marginTop: 15,
-    padding: 10,
-    backgroundColor: "#f5f5f5",
-    borderRadius: 8,
-    alignItems: "center",
-  } as ViewStyle,
-  statusText: {
-    fontSize: 14,
-    textAlign: "center",
-  } as TextStyle,
-  // New styles
-  floatingButtonContainer: {
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-    paddingVertical: 15,
-    paddingHorizontal: 20,
-    backgroundColor: "white",
-    borderTopWidth: 1,
-    borderTopColor: "#eee",
-    elevation: 5,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: -3 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    paddingBottom: Platform.OS === "ios" ? 30 : 15,
-    zIndex: 10,
-  } as ViewStyle,
-  floatingButton: {
-    backgroundColor: "#3498db",
-    paddingVertical: 14,
-    borderRadius: 25,
-    width: "100%",
-    alignItems: "center",
-  } as ViewStyle,
-  registerButton: {
-    backgroundColor: "#3498db",
-  } as ViewStyle,
-  unregisterButton: {
-    backgroundColor: "#e74c3c",
-  } as ViewStyle,
-  buttonDisabled: {
-    backgroundColor: "#bdc3c7",
-  } as ViewStyle,
-  registerSection: {
-    padding: 20,
-    backgroundColor: "#f9f9f9",
-    borderRadius: 10,
-    marginTop: 15,
-    marginHorizontal: 20,
-  } as ViewStyle,
-  spacer: {
-    height: 80,
-  } as ViewStyle,
-};
+import { Text } from "~/components/ui/text";
+import { useColorScheme } from "~/lib/useColorScheme";
+import { Card } from "~/components/ui/card";
+import { Button } from "~/components/ui/button";
+import i18n from "../i18n";
+import {
+  Clock,
+  Info,
+  LayoutGrid,
+  ListCollapse,
+  MapPin,
+  Users,
+  Building2,
+} from "lucide-react-native";
 
 export default function EventDetailsScreen() {
   const { t } = useTranslation();
   const router = useRouter();
-  const params = useLocalSearchParams<{ uuid: string }>();
-  const eventUuid = params.uuid;
+  const { isDarkColorScheme } = useColorScheme();
+  const params = useLocalSearchParams<{ id: string }>();
+  const eventUuid = params.id;
 
   const [event, setEvent] = useState<Event | null>(null);
   const [loading, setLoading] = useState(true);
@@ -232,8 +68,12 @@ export default function EventDetailsScreen() {
       }
 
       try {
-        const response = await getEventByUuid(eventUuid);
-
+        let response;
+        if (!isNaN(Number(eventUuid))) {
+          response = await getEventById(Number(eventUuid));
+        } else {
+          response = await getEventByUuid(eventUuid);
+        }
         // Handle nested response structure
         if (response.data && response.data.event) {
           setEvent(response.data.event);
@@ -266,10 +106,14 @@ export default function EventDetailsScreen() {
   // Format date for display
   const formatDate = (dateString: string) => {
     try {
-      return new Date(dateString).toLocaleDateString("ar", {
+      const date = new Date(dateString);
+      // Get current language from i18n
+      const currentLocale = i18n.language || "en";
+
+      return date.toLocaleDateString(currentLocale, {
         year: "numeric",
-        month: "long",
-        day: "numeric",
+        month: "2-digit",
+        day: "2-digit",
         hour: "2-digit",
         minute: "2-digit",
       });
@@ -325,170 +169,300 @@ export default function EventDetailsScreen() {
   };
 
   if (loading) {
-    return <Text style={tw.loading}>{t("loading")}</Text>;
+    return (
+      <View className="flex-1 justify-center items-center bg-background">
+        <ActivityIndicator size="large" className="text-primary" />
+        <Text className="mt-4 text-foreground">{t("loading")}</Text>
+      </View>
+    );
   }
 
   if (error) {
-    return <Text style={tw.error}>{error}</Text>;
+    return (
+      <View className="flex-1 justify-center items-center p-6 bg-background">
+        <Text className="text-xl font-bold text-center text-destructive">
+          {error}
+        </Text>
+        <Button onPress={() => router.back()} className="mt-6">
+          {t("event.go_back", "Go Back")}
+        </Button>
+      </View>
+    );
   }
 
   if (!event) {
-    return <Text style={tw.error}>{t("event.not_found")}</Text>;
+    return (
+      <View className="flex-1 justify-center items-center p-6 bg-background">
+        <Text className="text-xl font-bold text-center text-destructive">
+          {t("event.not_found")}
+        </Text>
+        <Button onPress={() => router.back()} className="mt-6">
+          {t("event.go_back", "Go Back")}
+        </Button>
+      </View>
+    );
   }
 
-  // Determine if registration button should be disabled
-  const isRegistrationDisabled =
-    !isRegistrationOpen(event) ||
-    isEventPast(event) ||
-    (event.seatsAvailable <= 0 && !isRegistered);
-
-  const getRegistrationButtonColor = (): ViewStyle => {
-    if (isRegistrationDisabled) {
-      return tw.buttonDisabled;
-    }
-    return isRegistered ? tw.unregisterButton : tw.registerButton;
-  };
-
   return (
-    <SafeAreaView style={tw.container}>
-      <StatusBar style="auto" />
+    <SafeAreaView className="flex-1 bg-background">
+      <StatusBar style={isDarkColorScheme ? "light" : "dark"} />
       <ScrollView>
-        <View style={tw.header}>
+        {/* Header Section */}
+        <View
+          className={`items-center p-6 border-b border-border ${
+            isDarkColorScheme ? "bg-primary/5" : "bg-white"
+          }`}
+        >
           <Image
             source={
               event.image
                 ? { uri: event.image }
                 : require("../assets/imgs/event-default.png")
             }
-            style={tw.eventImage}
+            className="h-48 w-48 rounded-md mb-4"
             defaultSource={require("../assets/imgs/event-default.png")}
             resizeMode="cover"
           />
-          <View style={tw.eventInfoContainer}>
-            <Text style={tw.name}>{event.name}</Text>
-            <View style={tw.badgeContainer}>
-              <View
-                style={[
-                  tw.badge,
-                  isEventPast(event)
-                    ? ({ backgroundColor: "#7f8c8d" } as ViewStyle)
-                    : tw.statusBadge,
-                ]}
-              >
-                <Text style={tw.badgeText}>
-                  {isEventPast(event) ? t("event.past") : t("event.upcoming")}
+          <Text className="text-2xl font-bold mb-2 text-foreground text-center">
+            {event.name}
+          </Text>
+          <View className="flex-row mt-2 flex-wrap justify-center gap-2">
+            <View
+              className={`px-3 py-1.5 rounded-full ${
+                isEventPast(event) ? "bg-gray-500" : "bg-green-600"
+              }`}
+            >
+              <Text className="text-xs font-medium text-white">
+                {isEventPast(event) ? t("event.past") : t("event.upcoming")}
+              </Text>
+            </View>
+            <View className="px-3 py-1.5 rounded-full bg-muted">
+              <Text className="text-xs font-medium text-foreground">
+                {t("event.seats_available")} {event.seatsAvailable}
+              </Text>
+            </View>
+          </View>
+        </View>
+
+        {/* About Section */}
+        <Card className="m-4 overflow-hidden">
+          <View className="p-4">
+            <View className="flex-row items-center mb-2">
+              <Info
+                size={20}
+                color={isDarkColorScheme ? "#ffffff" : "#0284c7"}
+              />
+              <View style={{ width: 12 }} />
+              <Text className="text-lg font-bold text-foreground">
+                {t("event.about")}
+              </Text>
+            </View>
+            <Text className="text-base text-foreground/80">
+              {event.description}
+            </Text>
+          </View>
+        </Card>
+
+        {/* Details Section */}
+        <Card className="m-4 overflow-hidden">
+          <View className="p-4">
+            <View className="flex-row items-center mb-4">
+              <ListCollapse
+                size={20}
+                color={isDarkColorScheme ? "#ffffff" : "#0284c7"}
+              />
+              <View style={{ width: 12 }} />
+              <Text className="text-lg font-bold text-foreground">
+                {t("event.details")}
+              </Text>
+            </View>
+
+            {event.category && (
+              <View className="flex-row justify-between py-2 border-b border-border">
+                <View className="flex-row items-center">
+                  <LayoutGrid
+                    size={16}
+                    color={isDarkColorScheme ? "#ffffff" : "#0284c7"}
+                  />
+                  <View style={{ width: 8 }} />
+                  <Text className="text-base font-semibold text-foreground">
+                    {t("event.category")}
+                  </Text>
+                </View>
+                <Text className="text-base text-foreground/80">
+                  {t(`event.categories.${event.category?.toLowerCase()}`) ||
+                    event.category}
+                </Text>
+              </View>
+            )}
+
+            {event.location && (
+              <View className="flex-row justify-between py-2 border-b border-border">
+                <View className="flex-row items-center">
+                  <MapPin
+                    size={16}
+                    color={isDarkColorScheme ? "#ffffff" : "#0284c7"}
+                  />
+                  <View style={{ width: 8 }} />
+                  <Text className="text-base font-semibold text-foreground">
+                    {t("event.location")}
+                  </Text>
+                </View>
+                <Text className="text-base text-foreground/80">
+                  {event.location}
+                </Text>
+              </View>
+            )}
+
+            {event.club && (
+              <View className="flex-row justify-between py-2 border-b border-border">
+                <View className="flex-row items-center">
+                  <Building2
+                    size={16}
+                    color={isDarkColorScheme ? "#ffffff" : "#0284c7"}
+                  />
+                  <View style={{ width: 8 }} />
+                  <Text className="text-base font-semibold text-foreground">
+                    {t("event.organized_by")}
+                  </Text>
+                </View>
+                <Text className="text-base text-foreground/80">
+                  {event.club.name}
+                </Text>
+              </View>
+            )}
+
+            {event.seatsRemaining !== undefined && (
+              <View className="flex-row justify-between py-2 border-b border-border">
+                <View className="flex-row items-center">
+                  <Users
+                    size={16}
+                    color={isDarkColorScheme ? "#ffffff" : "#0284c7"}
+                  />
+                  <View style={{ width: 8 }} />
+                  <Text className="text-base font-semibold text-foreground">
+                    {t("event.seats_remaining")}
+                  </Text>
+                </View>
+                <Text className="text-base text-foreground/80">
+                  {event.seatsRemaining}
+                </Text>
+              </View>
+            )}
+
+            <View className="flex-row justify-between py-2 border-b border-border">
+              <View className="flex-row items-center">
+                <Clock
+                  size={16}
+                  color={isDarkColorScheme ? "#ffffff" : "#0284c7"}
+                />
+                <View style={{ width: 8 }} />
+                <Text className="text-base font-semibold text-foreground">
+                  {t("event.start_date")}
+                </Text>
+              </View>
+              <Text className="text-base text-foreground/80">
+                {formatDate(event.eventStart)}
+              </Text>
+            </View>
+
+            <View className="flex-row justify-between py-2 border-b border-border">
+              <View className="flex-row items-center">
+                <Clock
+                  size={16}
+                  color={isDarkColorScheme ? "#ffffff" : "#0284c7"}
+                />
+                <View style={{ width: 8 }} />
+                <Text className="text-base font-semibold text-foreground">
+                  {t("event.end_date")}
+                </Text>
+              </View>
+              <Text className="text-base text-foreground/80">
+                {formatDate(event.eventEnd)}
+              </Text>
+            </View>
+
+            <View className="py-2">
+              <View className="flex-row justify-between items-center">
+                <View className="flex-row items-center">
+                  <Clock
+                    size={16}
+                    color={isDarkColorScheme ? "#ffffff" : "#0284c7"}
+                  />
+                  <View style={{ width: 8 }} />
+                  <Text className="text-base font-semibold text-foreground">
+                    {t("event.reg_period")}
+                  </Text>
+                </View>
+                <Text className="text-base text-foreground/80">
+                  {formatDate(event.registrationStart)}
+                </Text>
+              </View>
+              <View className="flex-row justify-end py-1">
+                <Text className="text-base text-foreground/80">
+                  {formatDate(event.registrationEnd)}
                 </Text>
               </View>
             </View>
 
-            {/* Seats information */}
-            <View style={tw.seatsInfo}>
-              <Text style={tw.seatsText}>
-                {t("event.seats_available")}: {event.seatsAvailable}
-              </Text>
-            </View>
-          </View>
-        </View>
+            {/* Registration status message */}
+            {isRegistrationOpen(event) && (
+              <View className="mt-4 p-3 bg-green-50 rounded-md">
+                <Text className="text-sm text-green-700 text-center">
+                  {t("event.registration_open")}
+                </Text>
+              </View>
+            )}
 
-        <View style={tw.section}>
-          <Text style={tw.sectionTitle}>{t("event.about")}</Text>
-          <Text style={tw.description}>{event.description}</Text>
-        </View>
-
-        <View style={tw.section}>
-          <Text style={tw.sectionTitle}>{t("event.details")}</Text>
-          <View style={tw.detailRow}>
-            <Text style={tw.detailLabel}>{t("event.start_date")}:</Text>
-            <Text style={tw.detailValue}>{formatDate(event.eventStart)}</Text>
+            {/* Registered status */}
+            {isRegistered && (
+              <View className="mt-3 p-3 bg-blue-50 rounded-md">
+                <Text className="text-sm text-blue-700 text-center">
+                  {t("event.you_are_registered")}
+                </Text>
+              </View>
+            )}
           </View>
-          <View style={tw.detailRow}>
-            <Text style={tw.detailLabel}>{t("event.end_date")}:</Text>
-            <Text style={tw.detailValue}>{formatDate(event.eventEnd)}</Text>
-          </View>
-          <View style={tw.detailRow}>
-            <Text style={tw.detailLabel}>
-              {t("event.registration_period")}:
-            </Text>
-            <Text style={tw.detailValue}>
-              {formatDate(event.registrationStart)} -{" "}
-              {formatDate(event.registrationEnd)}
-            </Text>
-          </View>
-
-          {/* Registration status message */}
-          {isRegistrationOpen(event) && (
-            <View
-              style={{
-                ...tw.statusBox,
-                backgroundColor: "#e8f5e9",
-              }}
-            >
-              <Text
-                style={{
-                  ...tw.statusText,
-                  color: "#2e7d32",
-                }}
-              >
-                {t("event.registration_open")}
-              </Text>
-            </View>
-          )}
-
-          {/* Registered status */}
-          {isRegistered && (
-            <View
-              style={{
-                ...tw.statusBox,
-                backgroundColor: "#e3f2fd",
-                marginTop: 10,
-              }}
-            >
-              <Text
-                style={{
-                  ...tw.statusText,
-                  color: "#1565c0",
-                }}
-              >
-                {t("event.you_are_registered")}
-              </Text>
-            </View>
-          )}
-        </View>
+        </Card>
 
         {/* Admin section - only show if user is admin */}
         {isEventAdmin && (
-          <View style={tw.section}>
-            <Text style={tw.sectionTitle}>{t("event.admin_tools")}</Text>
-            <Text style={tw.description}>{t("event.admin_message")}</Text>
-          </View>
+          <Card className="m-4 overflow-hidden">
+            <View className="p-4">
+              <Text className="text-lg font-bold mb-2 text-foreground">
+                {t("event.admin_tools")}
+              </Text>
+              <Text className="text-base text-foreground/80">
+                {t("event.admin_message")}
+              </Text>
+            </View>
+          </Card>
         )}
 
-        {/* Add spacer at the bottom to account for floating button */}
-        <View style={tw.spacer} />
+        {/* Add spacer at the bottom to account for registration button */}
+        <View className="h-16" />
       </ScrollView>
 
-      {/* Floating button at the bottom - single toggle button */}
-      <View style={tw.floatingButtonContainer}>
-        <TouchableOpacity
-          style={{
-            ...tw.floatingButton,
-            ...(isRegistrationDisabled
-              ? tw.buttonDisabled
-              : isRegistered
-              ? tw.unregisterButton
-              : tw.registerButton),
-          }}
+      {/* Floating registration button */}
+      <View className="absolute bottom-8 left-4 right-4 bg-background shadow-md rounded-lg">
+        <Button
+          className={`w-full ${isRegistered ? "bg-red-500" : "bg-blue-500"}`}
+          disabled={
+            !isRegistrationOpen(event) ||
+            isEventPast(event) ||
+            (event.seatsAvailable <= 0 && !isRegistered) ||
+            isRegistering
+          }
           onPress={handleRegistration}
-          disabled={isRegistrationDisabled || isRegistering}
         >
-          <Text style={tw.buttonText}>
+          <Text className="text-white font-medium">
             {isRegistering
               ? t("event.processing")
               : isRegistered
               ? t("event.unregister")
               : t("event.register")}
           </Text>
-        </TouchableOpacity>
+        </Button>
       </View>
     </SafeAreaView>
   );
