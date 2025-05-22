@@ -18,7 +18,7 @@ export interface Club {
   createdAt: string;
   updatedAt: string;
   // Additional fields from API
-  id?: number;
+  id: number;
   isArchived?: boolean;
   archivedAt?: string | null;
   createdBy?: number;
@@ -105,6 +105,7 @@ export const getAllClubs = async (
   return result.data;
 };
 
+// get's a club by its UUID or numeric ID
 export const getClubByUuid = async (
   clubUuid: string,
   queryParams?: Record<string, any>
