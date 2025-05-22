@@ -1,8 +1,11 @@
 import * as React from "react";
 import { ScrollView, Text, ActivityIndicator, View } from "react-native";
 import { useTranslation } from "react-i18next";
-import { Event as ApiEvent, getAllEvents } from "~/api/EventDetails";
+import { Event as ApiEvent, getAllEvents, getEventById } from "~/api/EventDetails";
 import { EventCard } from "~/components/ui/event-card";
+import { EventCard as RegistrationCard } from "~/components/ui/registration-card";
+import { getUserProfile } from "~/api/profile";
+import { useAuth } from "~/context/AuthContext";
 
 // Define vibrant background colors for cards
 const cardColors = [
@@ -12,10 +15,12 @@ const cardColors = [
 ];
 
 export default function HomeScreen() {
-  const [progress, setProgress] = React.useState(78);
   const { t } = useTranslation();
+  const { user } = useAuth();
   const [suggestedEvents, setSuggestedEvents] = React.useState<ApiEvent[]>([]);
+  const [registeredEvents, setRegisteredEvents] = React.useState<any[]>([]);
   const [loading, setLoading] = React.useState(true);
+  const [loadingRegisteredEvents, setLoadingRegisteredEvents] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
 
   React.useEffect(() => {
@@ -47,53 +52,63 @@ export default function HomeScreen() {
     fetchEvents();
   }, [t]);
 
-  // Mock data for registered events with assigned categories
-  const registeredEvents: ApiEvent[] = [
-    {
-      uuid: "event-uuid-1", 
-      id: 1,
-      name: "Tech Conference 2025",
-      description:
-        "An annual conference for tech enthusiasts and professionals. Join us for a day of learning, networking, and exploring the latest trends in technology.",
-      seatsAvailable: 150, 
-      clubId: "club-uuid-123", 
-      registrationStart: "2025-06-01T09:00:00Z",
-      registrationEnd: "2025-08-10T17:00:00Z",
-      eventStart: "2025-08-15T09:00:00Z",
-      eventEnd: "2025-08-15T17:00:00Z",
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      category: "conference", 
-      location: "Online via Zoom",
-      poster:
-        "https://images.unsplash.com/photo-1579546929518-9e396f3cc809?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80",
-      club: {
-        name: "Tech Innovators Club",
-        uuid: "club-uuid-123",
-        logo: "https://example.com/logo.png",
-      },
-    },
-    {
-      uuid: "event-uuid-2",
-      id: 2,
-      name: "Creative Coding Workshop",
-      description:
-        "Explore the intersection of art and code in this hands-on workshop. No prior coding experience required, just a curious mind!",
-      seatsAvailable: 25,
-      clubId: "club-uuid-456",
-      registrationStart: "2025-06-15T10:00:00Z",
-      registrationEnd: "2025-07-15T17:00:00Z",
-      eventStart: "2025-07-20T14:00:00Z",
-      eventEnd: "2025-07-20T18:00:00Z",
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      category: "workshop", 
-      location: "Community Art & Tech Center, Room 3",
-      poster:
-        "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80",
-      club: { name: "Digital Artists Collective", uuid: "club-uuid-456" },
-    },
-  ];
+  // Load user's registered events
+  React.useEffect(() => {
+    const fetchRegisteredEvents = async () => {
+      setLoadingRegisteredEvents(true);
+      try {
+        if (!user || (!user.id && !user.uuid)) {
+          setRegisteredEvents([]);
+          return;
+        }
+        
+        const userId = user.id || user.uuid || '';
+        const profile = await getUserProfile(userId);
+        
+        // Only process registrations with "accepted" status
+        const acceptedRegistrations = profile.eventRegistration?.filter(reg => 
+          reg.status === 'accepted'
+        ) || [];
+        
+        if (acceptedRegistrations.length > 0) {
+          const eventPromises = acceptedRegistrations.map(async (reg) => {
+            try {
+              const eventResponse = await getEventById(reg.eventId);
+              const eventData = eventResponse.event || (eventResponse.data?.event);
+              
+              if (eventData) {
+                // Format data for the registration card
+                return {
+                  id: reg.id,
+                  eventId: reg.eventId,
+                  title: eventData.name,
+                  date: eventData.eventStart ? new Date(eventData.eventStart).toLocaleDateString() : undefined,
+                  location: eventData.location,
+                  status: reg.status
+                };
+              }
+              return null;
+            } catch (err) {
+              console.error(`Failed to load event ${reg.eventId}:`, err);
+              return null;
+            }
+          });
+          
+          const eventDetails = await Promise.all(eventPromises);
+          setRegisteredEvents(eventDetails.filter(Boolean));
+        } else {
+          setRegisteredEvents([]);
+        }
+      } catch (err) {
+        console.error('Failed to load registered events:', err);
+        setRegisteredEvents([]);
+      } finally {
+        setLoadingRegisteredEvents(false);
+      }
+    };
+
+    fetchRegisteredEvents();
+  }, [user]);
 
   return (
     <ScrollView
@@ -103,20 +118,32 @@ export default function HomeScreen() {
       <Text className="text-lg font-semibold mb-2">
         {t("home.registered_events")}
       </Text>
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        className="mb-6"
-      >
-        {registeredEvents.map((event) => (
-          <EventCard
-            key={event.id}
-            event={event}
-            variant="compact"
-            className="mr-4"
-          />
-        ))}
-      </ScrollView>
+      
+      {loadingRegisteredEvents ? (
+        <View className="h-32 justify-center items-center">
+          <ActivityIndicator size="small" color="#0000ff" />
+        </View>
+      ) : registeredEvents.length > 0 ? (
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          className="mb-6"
+        >
+          {registeredEvents.map((event) => (
+            <RegistrationCard
+              key={event.id}
+              event={event}
+              className="mr-4"
+            />
+          ))}
+        </ScrollView>
+      ) : (
+        <View className="h-24 justify-center items-center mb-6 bg-card/50 rounded-lg">
+          <Text className="text-muted-foreground">
+            {t("home.no_registered_events", "You don't have any accepted event registrations.")}
+          </Text>
+        </View>
+      )}
       
       <Text className="text-lg font-semibold mb-2">
         {t("home.suggested_events")}

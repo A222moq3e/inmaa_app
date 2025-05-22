@@ -28,7 +28,7 @@ export function EventCard({ event, className }: EventCardProps) {
   const handlePress = () => {
     router.push({
       pathname: "/EventDetails",
-      params: { uuid: event.eventId.toString() }
+      params: { id: event.eventId.toString() }
     });
   };
 
