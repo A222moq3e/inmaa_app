@@ -1,6 +1,6 @@
 const API_URL = process.env.EXPO_PUBLIC_API_URL;
 // Use a fallback for development if API_URL is not defined
-const FALLBACK_API_URL = "http://10.0.2.2:5006";
+const FALLBACK_API_URL = "http://10.0.2.2:5000";
 const EFFECTIVE_API_URL = API_URL || FALLBACK_API_URL;
 
 import { createAuthHeaders } from "./auth";
