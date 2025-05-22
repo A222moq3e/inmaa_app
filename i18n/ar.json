@@ -58,24 +58,14 @@
     "go_back": "العودة"
   },
   "event": {
-    "not_found": "لم يتم العثور على الفعالية",
-    "not_found_by_id": "لم يتم العثور على فعالية بهذا الرقم",
-    "go_back": "العودة",
-    "about": "نبذة",
-    "details": "التفاصيل",
-    "start_date": "تاريخ البدء",
-    "end_date": "تاريخ الانتهاء",
-    "registration_period": "فترة التسجيل",
-    "reg_period": "فترة التسجيل",
-    "registration_open": "التسجيل مفتوح حالياً",
-    "you_are_registered": "أنت مسجل في هذه الفعالية",
-    "seats_available": "المقاعد المتاحة",
-    "seats_remaining": "المقاعد المتبقية",
-    "location": "الموقع",
-    "organized_by": "منظمة بواسطة",
-    "status": "الحالة",
-    "past": "انتهت",
-    "upcoming": "قادمة",
+    "status_label": "الحالة",
+    "status": {
+      "upcoming": "قادمة",
+      "ongoing": "جارية",
+      "completed": "انتهت",
+      "registration": "التسجيل",
+      "full": "ممتلئة"
+    },
     "category": "الفئة",
     "categories": {
       "bootcamp": "معسكر تدريبي",
@@ -83,8 +73,12 @@
       "seminar": "ندوة",
       "conference": "مؤتمر",
       "competition": "مسابقة",
+      "hackathon": "هاكاثون",
+      "meeting": "اجتماع",
+      "networking": "فعالية تواصل",
       "other": "أخرى"
     },
+    "seats_remaining": "{{count}} مقاعد متبقية",
     "register": "تسجيل",
     "unregister": "إلغاء التسجيل",
     "processing": "جاري المعالجة...",
@@ -125,8 +119,12 @@
     "invalid_event": "بيانات الفعالية غير صالحة",
     "invalid_id": "رقم التعريف غير صالح"
   },
-  "login": {
+  "login_prompts": {
     "required_title": "تسجيل الدخول مطلوب",
     "required_message": "يرجى تسجيل الدخول للتسجيل في هذه الفعالية"
+  },
+  "home": {
+    "registered_events": "فعالياتك",
+    "suggested_events": "الفعاليات المقترحة"
   }
 }
