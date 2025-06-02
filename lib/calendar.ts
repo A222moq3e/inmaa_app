@@ -1,5 +1,6 @@
 import * as Calendar from 'expo-calendar';
 import { Alert, Platform } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Event } from '~/api/EventDetails';
 
 export interface CalendarEventData {
@@ -9,6 +10,50 @@ export interface CalendarEventData {
   location?: string;
   notes?: string;
 }
+
+// Key for storing calendar event cache in AsyncStorage
+const CALENDAR_EVENTS_CACHE_KEY = 'wasl-mobile:calendar-events-cache';
+
+// Format for creating a unique key for each event
+const getEventCacheKey = (event: Event): string => {
+  return `${event.id}:${event.name}:${event.eventStart}`;
+};
+
+/**
+ * Check if an event has already been added to the calendar by checking the cache
+ */
+const isEventInCache = async (event: Event): Promise<boolean> => {
+  try {
+    const cacheData = await AsyncStorage.getItem(CALENDAR_EVENTS_CACHE_KEY);
+    if (!cacheData) return false;
+    
+    const cachedEvents: Record<string, boolean> = JSON.parse(cacheData);
+    const eventKey = getEventCacheKey(event);
+    
+    return !!cachedEvents[eventKey];
+  } catch (error) {
+    console.error('Error checking event cache:', error);
+    return false;
+  }
+};
+
+/**
+ * Add an event to the cache after it's been added to the calendar
+ */
+const addEventToCache = async (event: Event): Promise<void> => {
+  try {
+    const cacheData = await AsyncStorage.getItem(CALENDAR_EVENTS_CACHE_KEY);
+    const cachedEvents: Record<string, boolean> = cacheData ? JSON.parse(cacheData) : {};
+    
+    const eventKey = getEventCacheKey(event);
+    cachedEvents[eventKey] = true;
+    
+    await AsyncStorage.setItem(CALENDAR_EVENTS_CACHE_KEY, JSON.stringify(cachedEvents));
+    console.log('✅ Event added to cache:', eventKey);
+  } catch (error) {
+    console.error('Error adding event to cache:', error);
+  }
+};
 
 /**
  * Requests calendar permissions from the user
@@ -119,33 +164,18 @@ export const createDefaultCalendar = async (): Promise<Calendar.Calendar | null>
  */
 export const addEventToCalendar = async (eventData: CalendarEventData): Promise<string | null> => {
   try {
-    console.log('Starting calendar event creation...');
+    console.log('📝 Creating calendar event...');
     
-    // Double-check if the event already exists before proceeding
-    // This is a redundant check just to be safe
-    const existingEvent = await checkEventExists(eventData);
-    if (existingEvent) {
-      console.log('WARNING: Attempted to add an event that already exists. Aborting event creation.');
-      throw new Error('Event already exists in calendar');
-    }
-    
-    // Check permissions
-    const hasPermissions = await requestCalendarPermissions();
-    console.log('Calendar permissions granted:', hasPermissions);
-    
-    if (!hasPermissions) {
-      throw new Error('Calendar permission denied');
-    }
-
+    // We don't need to check for duplicates again here as it's already done in the wrapper function
     // Get default calendar
     const defaultCalendar = await getDefaultCalendar();
-    console.log('Default calendar found:', !!defaultCalendar);
     
     if (!defaultCalendar) {
+      console.error('❌ No calendar available');
       throw new Error('No calendar available');
     }
 
-    console.log('Using calendar:', defaultCalendar.title, 'ID:', defaultCalendar.id);
+    console.log(`📅 Using calendar: "${defaultCalendar.title}" (ID: ${defaultCalendar.id})`);
 
     // Create the calendar event
     const eventDetails = {
@@ -157,16 +187,16 @@ export const addEventToCalendar = async (eventData: CalendarEventData): Promise<
       allDay: false,
     };
 
-    console.log('Creating event with details:', {
+    console.log('Event details:', {
       title: eventDetails.title,
       startDate: eventDetails.startDate.toISOString(),
       endDate: eventDetails.endDate.toISOString(),
-      location: eventDetails.location,
+      location: eventDetails.location || '(No location)'
     });
 
     // Create the event
     const eventId = await Calendar.createEventAsync(defaultCalendar.id, eventDetails);
-    console.log('Event created successfully with ID:', eventId);
+    console.log('✅ Event created successfully with ID:', eventId);
     
     return eventId;
   } catch (error) {
@@ -216,36 +246,69 @@ export const addEventToCalendarWithHandling = async (
   }
 ): Promise<void> => {
   try {
-    console.log('=== STARTING CALENDAR EVENT ADDITION ===');
+    console.log('🚀 STARTING CALENDAR EVENT ADDITION');
     console.log('Event details:', {
+      id: event.id,
       name: event.name,
       start: new Date(event.eventStart).toISOString(),
       end: new Date(event.eventEnd).toISOString(),
       location: event.location || 'No location'
     });
     
-    const calendarData = convertEventToCalendarData(event);
-    console.log('Calendar data prepared:', {
-      title: calendarData.title,
-      start: calendarData.startDate.toISOString(),
-      end: calendarData.endDate.toISOString(),
-      location: calendarData.location || 'No location'
-    });
-    
-    // Wait for permissions to be established before doing any calendar operations
-    const hasPermissions = await requestCalendarPermissions();
-    if (!hasPermissions) {
-      throw new Error('Calendar permission denied');
+    // IMPORTANT: First check our local cache to see if we've already added this event
+    const isInCache = await isEventInCache(event);
+    if (isInCache) {
+      console.log('📌 Event found in local cache - preventing duplicate');
+      Alert.alert(
+        '📅 ' + (translations.event_already_exists || 'Event Already in Calendar'),
+        (translations.event_already_exists_message || 'This event is already in your calendar.')
+          .replace('This event', `"${event.name}"`),
+        [{ text: 'OK', style: 'default' }]
+      );
+      return;
     }
     
-    // Check if event already exists before trying to add it
-    console.log('Checking if event already exists...');
-    const eventExists = await checkEventExists(calendarData);
-    console.log('Event exists check result:', eventExists);
+    // First ensure we have permissions before doing anything
+    const { status } = await Calendar.requestCalendarPermissionsAsync();
+    if (status !== 'granted') {
+      console.error('❌ Calendar permission denied');
+      Alert.alert(
+        '🔒 ' + translations.calendar_permission_title,
+        translations.calendar_permission_message,
+        [
+          { text: 'Cancel', style: 'cancel' },
+          { 
+            text: 'Settings', 
+            style: 'default',
+            onPress: () => console.log('Open settings to grant calendar permission')
+          }
+        ]
+      );
+      return;
+    }
     
-    if (eventExists) {
-      // Event already exists, inform the user
-      console.log('Duplicate event found, showing alert to user');
+    // Prepare the event data
+    const calendarData = convertEventToCalendarData(event);
+    
+    // IMPORTANT: Also check calendar API as a secondary measure
+    // Making this a separate step with its own try/catch to ensure it runs properly
+    let isDuplicate = false;
+    try {
+      console.log('🔍 Checking for duplicate events in calendar...');
+      isDuplicate = await checkEventExists(calendarData);
+      console.log('Duplicate check result:', isDuplicate);
+    } catch (duplicateError) {
+      console.error('❌ Error checking for duplicates:', duplicateError);
+      // If we can't check for duplicates, we'll rely on our cache
+      isDuplicate = false;
+    }
+    
+    // Handle duplicate event
+    if (isDuplicate) {
+      console.log('❗ Duplicate event found in calendar - alerting user');
+      // Also add to cache for future reference
+      await addEventToCache(event);
+      
       Alert.alert(
         '📅 ' + (translations.event_already_exists || 'Event Already in Calendar'),
         (translations.event_already_exists_message || 'This event is already in your calendar.')
@@ -256,10 +319,13 @@ export const addEventToCalendarWithHandling = async (
     }
     
     // Event doesn't exist, proceed to add it
-    console.log('No duplicate found, proceeding to add event');
+    console.log('✅ No duplicate found, adding event to calendar');
     const eventId = await addEventToCalendar(calendarData);
     
     if (eventId) {
+      // Successfully added - store in our cache to prevent future duplicates
+      await addEventToCache(event);
+      
       Alert.alert(
         '📅 ' + translations.added_to_calendar,
         `"${event.name}" has been successfully added to your calendar!`,
@@ -316,124 +382,138 @@ export const addEventToCalendarWithHandling = async (
 
 /**
  * Checks if an event with similar details already exists in the calendar
+ * Complete rewrite with a more reliable detection algorithm
  */
 export const checkEventExists = async (eventData: CalendarEventData): Promise<boolean> => {
   try {
-    console.log('Checking for existing events...', {
+    console.log('🔍 CHECKING FOR DUPLICATE EVENTS');
+    console.log('Event to check:', {
       title: eventData.title,
       startDate: eventData.startDate.toISOString(),
       endDate: eventData.endDate.toISOString(),
       location: eventData.location || 'No location'
     });
     
-    // Check permissions first
-    const hasPermissions = await requestCalendarPermissions();
-    if (!hasPermissions) {
-      console.log('No permissions to check existing events - permissions not granted');
-      return false;
+    // Always check permissions first and return early if not granted
+    const { status } = await Calendar.requestCalendarPermissionsAsync();
+    console.log('Calendar permission status:', status);
+    if (status !== 'granted') {
+      console.error('❌ Cannot check for existing events: No calendar permissions');
+      return false; 
     }
 
-    // Get all calendars to search in
-    const calendars = await Calendar.getCalendarsAsync(Calendar.EntityTypes.EVENT);
-    if (!calendars || calendars.length === 0) {
-      console.log('No calendars available to search');
+    // Extract key data from the event for comparison
+    const eventTitle = (eventData.title || '').replace(/^🎉\s*/, '').toLowerCase().trim();
+    const eventStart = eventData.startDate;
+    const eventLocation = (eventData.location || '').toLowerCase().trim();
+    
+    // Get all available calendars - we need to check all of them
+    const allCalendars = await Calendar.getCalendarsAsync(Calendar.EntityTypes.EVENT);
+    if (!allCalendars || allCalendars.length === 0) {
+      console.log('❌ No calendars found to search');
       return false;
     }
+    console.log(`📅 Found ${allCalendars.length} calendars to search`);
     
-    console.log(`Searching through ${calendars.length} calendars for duplicate events`);
-
-    // Create date range for search (search within the event day with a slightly wider window)
-    const startSearch = new Date(eventData.startDate);
-    startSearch.setHours(0, 0, 0, 0);
+    // Create a wider time window for search (the entire day of the event)
+    const startOfDay = new Date(eventStart);
+    startOfDay.setHours(0, 0, 0, 0);
     
-    const endSearch = new Date(eventData.startDate);
-    endSearch.setHours(23, 59, 59, 999);
+    const endOfDay = new Date(eventStart);
+    endOfDay.setHours(23, 59, 59, 999);
     
-    console.log(`Search range: ${startSearch.toISOString()} - ${endSearch.toISOString()}`);
+    console.log(`⏰ Search window: ${startOfDay.toISOString()} to ${endOfDay.toISOString()}`);
 
-    // Normalize the event title for better comparison
-    const normalizedEventTitle = (eventData.title || '')
-      .replace(/^🎉\s*/, '')  // Remove emoji prefix
-      .toLowerCase()
-      .trim();
-
-    // Search for events in all calendars
-    for (const calendar of calendars) {
+    // For each calendar, check for matching events
+    for (const calendar of allCalendars) {
       try {
-        console.log(`Checking calendar: ${calendar.title} (ID: ${calendar.id})`);
+        console.log(`Searching calendar: "${calendar.title}" (${calendar.id})`);
         
-        const existingEvents = await Calendar.getEventsAsync(
+        // Get all events for the day
+        const events = await Calendar.getEventsAsync(
           [calendar.id],
-          startSearch,
-          endSearch
+          startOfDay,
+          endOfDay
         );
         
-        console.log(`Found ${existingEvents.length} events in this calendar on the same day`);
+        console.log(`Found ${events.length} events on this day in calendar "${calendar.title}"`);
         
-        if (existingEvents.length > 0) {
-          console.log('Existing event titles:', existingEvents.map(e => e.title).join(', '));
-        }
-
-        // Check if any existing event matches our event
-        const duplicateEvent = existingEvents.find(existingEvent => {
-          // Check if title matches (remove emoji prefix for comparison)
-          const cleanTitle = normalizedEventTitle;
-          const cleanExistingTitle = (existingEvent.title || '')
-            .replace(/^🎉\s*/, '')
-            .toLowerCase()
-            .trim();
+        // Detailed examination of each event
+        for (const existingEvent of events) {
+          // Prepare normalized data for comparison
+          const existingTitle = (existingEvent.title || '').replace(/^🎉\s*/, '').toLowerCase().trim();
+          const existingStart = new Date(existingEvent.startDate);
+          const existingLocation = (existingEvent.location || '').toLowerCase().trim();
           
-          const titleMatch = cleanExistingTitle.includes(cleanTitle) || 
-                             cleanTitle.includes(cleanExistingTitle);
-
-          // Check if start time matches (within 30 minutes)
-          const eventStartTime = eventData.startDate.getTime();
-          const existingStartTime = new Date(existingEvent.startDate).getTime();
-          const timeDiff = Math.abs(existingStartTime - eventStartTime);
-          const timeMatch = timeDiff <= 60 * 60 * 1000; // 60 minutes tolerance (increased from 30)
-
-          // Check if location matches (if both have location)
-          const locationMatch = !eventData.location || !existingEvent.location ||
-                                (existingEvent.location || '').toLowerCase().includes((eventData.location || '').toLowerCase()) ||
-                                (eventData.location || '').toLowerCase().includes((existingEvent.location || '').toLowerCase());
-
-          // Log the comparison details for debugging
-          if (titleMatch || timeMatch) {
-            console.log('Potential match found:', {
+          // Calculate time difference in minutes
+          const timeDiffMinutes = Math.abs(existingStart.getTime() - eventStart.getTime()) / (1000 * 60);
+          
+          // Different matching criteria:
+          // 1. Title is very similar AND start time is close (within 90 minutes)
+          // 2. Title is the same event and on the same day (regardless of time)
+          const isTitleExactMatch = existingTitle === eventTitle;
+          const isTitleSimilar = 
+            existingTitle.includes(eventTitle) || 
+            eventTitle.includes(existingTitle) ||
+            (existingTitle.length > 5 && eventTitle.length > 5 && 
+             (existingTitle.includes(eventTitle.substring(0, 5)) || 
+              eventTitle.includes(existingTitle.substring(0, 5))));
+              
+          const isTimeClose = timeDiffMinutes < 90;
+          const isSameDay = 
+            existingStart.getDate() === eventStart.getDate() &&
+            existingStart.getMonth() === eventStart.getMonth() &&
+            existingStart.getFullYear() === eventStart.getFullYear();
+            
+          const isLocationMatch = 
+            !eventLocation || 
+            !existingLocation || 
+            existingLocation.includes(eventLocation) || 
+            eventLocation.includes(existingLocation);
+            
+          // Advanced duplicate detection logic
+          const isDuplicate = (isTitleSimilar && isTimeClose && isLocationMatch) || 
+                             (isTitleExactMatch && isSameDay);
+                             
+          // Log all potential matches for debugging
+          if (isTitleSimilar || isTimeClose) {
+            console.log('⚠️ Potential duplicate analysis:', {
               existingTitle: existingEvent.title,
               newTitle: eventData.title,
-              titleMatch,
-              existingStartTime: new Date(existingEvent.startDate).toISOString(),
-              newStartTime: eventData.startDate.toISOString(),
-              timeMatch,
-              timeDiffMinutes: Math.round(timeDiff / (60 * 1000)),
-              existingLocation: existingEvent.location,
-              newLocation: eventData.location,
-              locationMatch
+              titleExact: isTitleExactMatch,
+              titleSimilar: isTitleSimilar,
+              timeDiffMinutes: Math.round(timeDiffMinutes),
+              timeClose: isTimeClose,
+              sameDay: isSameDay,
+              locationMatch: isLocationMatch,
+              isDuplicate: isDuplicate
             });
           }
-
-          return titleMatch && timeMatch && locationMatch;
-        });
-
-        if (duplicateEvent) {
-          console.log('DUPLICATE FOUND:', duplicateEvent.title, 'in calendar:', calendar.title);
-          console.log('Original event title:', eventData.title);
-          console.log('Existing event start:', new Date(duplicateEvent.startDate).toISOString());
-          console.log('New event start:', eventData.startDate.toISOString());
-          return true;
+          
+          // If duplicate found, return immediately
+          if (isDuplicate) {
+            console.log('‼️ DUPLICATE EVENT DETECTED:', {
+              calendar: calendar.title,
+              existingTitle: existingEvent.title,
+              newTitle: eventData.title,
+              existingTime: existingStart.toISOString(),
+              newTime: eventStart.toISOString(),
+              timeDiffMinutes: Math.round(timeDiffMinutes)
+            });
+            return true;
+          }
         }
       } catch (error) {
-        console.log('Error searching calendar:', calendar.title, error);
-        // Continue searching other calendars
+        console.error(`Error searching calendar "${calendar.title}":`, error);
+        // Continue with other calendars even if one fails
       }
     }
 
-    console.log('No existing event found - OK to add new event');
+    console.log('✅ No duplicate events found');
     return false;
   } catch (error) {
-    console.error('Error checking for existing events:', error);
-    // Let's return false to not block adding events when checks fail
+    console.error('❌ Error in duplicate event check:', error);
+    // If we encounter an error in the check, it's safer to allow adding the event
     return false;
   }
 };
