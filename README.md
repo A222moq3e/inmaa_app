@@ -18,6 +18,8 @@ A mobile application for managing and attending events, built with React Native 
 - View event details  
 - Register for events  
 - Track registration status  
+- **Add events to calendar** - One-click calendar integration
+- Event history tracking  
 
 ### Personalized Experience
 
@@ -30,7 +32,9 @@ A mobile application for managing and attending events, built with React Native 
 - Dark and light mode support  
 - Responsive design  
 - Elegant animations and transitions  
-- Multilingual support  
+- Multilingual support (English/Arabic)
+- Calendar integration with native device calendar
+- Intuitive event management interface
 
 <img width="353" alt="image" src="https://github.com/user-attachments/assets/68d69358-dba7-45d9-8ff3-883e311ed1ca" />
 

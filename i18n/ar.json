@@ -102,7 +102,18 @@
     "seats_available": "المقاعد المتاحة:",
     "you_are_registered": "أنت مسجل في هذه الفعالية",
     "registration_open": "التسجيل مفتوح حاليًا",
-    "pull_to_refresh": "اسحب للتحديث"
+    "pull_to_refresh": "اسحب للتحديث",
+    "add_to_calendar": "إضافة إلى التقويم",
+    "added_to_calendar": "تمت إضافة الفعالية إلى التقويم",
+    "calendar_permission_denied": "تم رفض إذن التقويم",
+    "calendar_error": "فشل في إضافة الفعالية إلى التقويم",
+    "calendar_permission_title": "إذن التقويم",
+    "calendar_permission_message": "يحتاج هذا التطبيق إلى الوصول إلى التقويم لإضافة الفعاليات.",
+    "calendar_setup_required": "إعداد التقويم مطلوب",
+    "calendar_setup_ios": "لا توجد تقاويم مُعدّة على جهازك. يرجى إعداد تقويم واحد على الأقل في إعدادات الجهاز > التقويم والحسابات.",
+    "calendar_setup_android": "لا توجد تقاويم متاحة. يرجى إعداد حساب Google أو تقويم محلي في إعدادات الجهاز.",
+    "event_already_exists": "الفعالية موجودة بالفعل في التقويم",
+    "event_already_exists_message": "هذه الفعالية موجودة بالفعل في التقويم الخاص بك."
   },
   "errors": {
     "fetch_clubs": "فشل في جلب الأندية",

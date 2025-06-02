@@ -102,7 +102,18 @@
     "seats_available": "Available Seats:",
     "you_are_registered": "You are registered for this event",
     "registration_open": "Registration is currently open",
-    "pull_to_refresh": "Pull to refresh"
+    "pull_to_refresh": "Pull to refresh",
+    "add_to_calendar": "Add to Calendar",
+    "added_to_calendar": "Event added to calendar",
+    "calendar_permission_denied": "Calendar permission denied",
+    "calendar_error": "Failed to add event to calendar",
+    "calendar_permission_title": "Calendar Permission",
+    "calendar_permission_message": "This app needs access to your calendar to add events.",
+    "calendar_setup_required": "Calendar Setup Required",
+    "calendar_setup_ios": "No calendars are configured on your device. Please set up at least one calendar in your device Settings > Calendar & Accounts.",
+    "calendar_setup_android": "No calendars are available. Please set up a Google account or local calendar in your device settings.",
+    "event_already_exists": "Event Already in Calendar",
+    "event_already_exists_message": "This event is already in your calendar."
   },
   "errors": {
     "fetch_clubs": "Failed to fetch clubs",

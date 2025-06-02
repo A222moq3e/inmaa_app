@@ -35,7 +35,9 @@ import {
   Users,
   Building2,
   ExternalLink,
+  Calendar,
 } from "lucide-react-native";
+import { addEventToCalendarWithHandling } from "~/lib/calendar";
 
 export default function EventDetailsScreen() {
   const { t } = useTranslation();
@@ -52,6 +54,7 @@ export default function EventDetailsScreen() {
   const [isUserAuthenticated, setIsUserAuthenticated] = useState(false);
   const [isRegistering, setIsRegistering] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  const [isAddingToCalendar, setIsAddingToCalendar] = useState(false);
 
   // Check if user is authenticated
   useEffect(() => {
@@ -218,6 +221,24 @@ export default function EventDetailsScreen() {
   const navigateToClub = () => {
     if (event?.club?.uuid) {
       router.push(`/ClubDetails?uuid=${event.club.uuid}`);
+    }
+  };
+
+  // Add event to calendar
+  const handleAddToCalendar = async () => {
+    if (!event || isAddingToCalendar) return;
+
+    setIsAddingToCalendar(true);
+    try {
+      await addEventToCalendarWithHandling(event, {
+        added_to_calendar: t("event.added_to_calendar"),
+        calendar_permission_denied: t("event.calendar_permission_denied"),
+        calendar_error: t("event.calendar_error"),
+        calendar_permission_title: t("event.calendar_permission_title"),
+        calendar_permission_message: t("event.calendar_permission_message"),
+      });
+    } finally {
+      setIsAddingToCalendar(false);
     }
   };
 
@@ -483,6 +504,38 @@ export default function EventDetailsScreen() {
               </View>
             </View>
 
+            {/* Add to Calendar Button */}
+            <View className="pt-4 border-t border-border">
+              <Button
+                onPress={handleAddToCalendar}
+                variant="outline"
+                className="w-full"
+                disabled={isAddingToCalendar}
+              >
+                <View className="flex-row items-center">
+                  {isAddingToCalendar ? (
+                    <ActivityIndicator 
+                      size="small" 
+                      className="mr-2"
+                      color={isDarkColorScheme ? "#ffffff" : "#0284c7"}
+                    />
+                  ) : (
+                    <Calendar
+                      size={16}
+                      color={isDarkColorScheme ? "#ffffff" : "#0284c7"}
+                      className="mr-2"
+                    />
+                  )}
+                  <Text>
+                    {isAddingToCalendar 
+                      ? t("event.processing") 
+                      : t("event.add_to_calendar")
+                    }
+                  </Text>
+                </View>
+              </Button>
+            </View>
+
             {/* Registration status message */}
             {isRegistrationOpen(event) && (
               <View className="mt-4 p-3 bg-green-50 rounded-md">
@@ -492,14 +545,6 @@ export default function EventDetailsScreen() {
               </View>
             )}
 
-            {/* Registered status */}
-            {isRegistered && (
-              <View className="mt-3 p-3 bg-blue-50 rounded-md">
-                <Text className="text-sm text-blue-700 text-center">
-                  {t("event.you_are_registered")}
-                </Text>
-              </View>
-            )}
           </View>
         </Card>
 
